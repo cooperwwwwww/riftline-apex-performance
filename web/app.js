@@ -17,6 +17,8 @@ const LABEL_OVERRIDES = {
   width: 'Output width', height: 'Output height', 'segment:aspect': 'Screen shape', 'segment:window': 'Window mode', 'segment:aa': 'Anti-aliasing',
   reticle: 'Reticle color', customReticle: 'Custom reticle color', adaptiveEnabled: 'Adaptive 3D resolution', adaptiveTarget: 'Adaptive target FPS',
   renderScale: 'Minimum render scale', extraCommands: 'Additional launch commands', execConfig: 'Custom CFG file', lodScale: 'Geometry LOD scale',
+  refreshRate: 'Refresh rate', dx12: 'DirectX 12 renderer', rawInput: 'Raw mouse input', preload: 'Preload map assets',
+  multicore: 'Multicore rendering', threads: 'Worker threads', softParticlesOff: 'Disable soft particles',
   fadeScale: 'Object fade distance', mapDetailLevel: 'Map detail level', decalLimit: 'Decal limit', particleFallback: 'Particle fallback', viewFov: 'Field of view'
 };
 const PAGE_NAMES = { overview: 'Overview', display: 'Display', visuals: 'Visuals', advanced: 'Advanced', launch: 'Launch', safety: 'Safety' };
@@ -372,6 +374,8 @@ function hydrateLaunchOptions(launchOptions = '') {
   const take = (pattern, callback) => { remaining = remaining.replace(pattern, (...args) => { callback?.(...args); return ' '; }); };
   setControl('skipIntro', false); setControl('noJoy', false); setControl('forceNoVsync', false);
   setControl('highPriority', false); setControl('developerMode', false);
+  setControl('refreshRate', ''); setControl('dx12', false); setControl('rawInput', false); setControl('preload', false);
+  setControl('multicore', false); setControl('threads', ''); setControl('softParticlesOff', false);
   setControl('fpsCap', ''); setControl('fpsCounter', 'Off'); setControl('lobbyFps', 'Keep current'); setControl('execConfig', ''); setControl('language', 'System default');
   take(/\s+\+fps_max\s+(\d+)/ig, (_all, value) => setControl('fpsCap', value));
   take(/\s+-novid\b/ig, () => setControl('skipIntro', true));
@@ -381,6 +385,15 @@ function hydrateLaunchOptions(launchOptions = '') {
   take(/\s+-forcenovsync\b/ig, () => setControl('forceNoVsync', true));
   take(/\s+-high\b/ig, () => setControl('highPriority', true));
   take(/\s+-dev\b/ig, () => setControl('developerMode', true));
+  take(/\s+-(?:refresh|freq)\s+(\d+)/ig, (_all, value) => setControl('refreshRate', value));
+  take(/\s+-eac_launcher_settings\s+SettingsDX12\.json(?=\s)/ig, () => setControl('dx12', true));
+  take(/\s+\+m_rawinput\s+1\b/ig, () => setControl('rawInput', true));
+  // Preload is one card for both commands; either one alone still reads back as on.
+  take(/\s+-preload\b/ig, () => setControl('preload', true));
+  take(/\s+\+cl_forcepreload\s+1\b/ig, () => setControl('preload', true));
+  take(/\s+\+mat_queue_mode\s+2\b/ig, () => setControl('multicore', true));
+  take(/\s+-threads\s+(\d+)/ig, (_all, value) => setControl('threads', value));
+  take(/\s+-softparticlesdefaultoff\b/ig, () => setControl('softParticlesOff', true));
   take(/\s+\+exec\s+([A-Za-z0-9_.-]+)/ig, (_all, value) => setControl('execConfig', value));
   take(/\s+-(?:language)\s+([A-Za-z_]+)/ig, (_all, value) => setControl('language', value.toLowerCase()));
   take(/\s+\+miles_language\s+([A-Za-z_]+)/ig, (_all, value) => setControl('language', value.toLowerCase()));
@@ -563,6 +576,26 @@ function clampResolutionField(id) {
 }
 
 /* ---------- Command + display ---------- */
+const COMMAND_PRESETS = {
+  competitive: { fpsCap: '0', lobbyFps: '60', skipIntro: true, forceNoVsync: true, rawInput: true, preload: true, softParticlesOff: false, highPriority: false, multicore: false, threads: '' },
+  lowend: { fpsCap: '144', lobbyFps: '30', skipIntro: true, forceNoVsync: true, rawInput: true, preload: true, softParticlesOff: true, highPriority: false, multicore: true, threads: '' },
+  streamer: { fpsCap: '144', lobbyFps: '60', skipIntro: true, forceNoVsync: false, rawInput: true, preload: true, softParticlesOff: false, highPriority: false, multicore: false, threads: '' },
+  clear: { fpsCap: '', lobbyFps: 'Keep current', fpsCounter: 'Off', skipIntro: false, noJoy: false, forceNoVsync: false, highPriority: false, developerMode: false,
+    refreshRate: '', dx12: false, rawInput: false, preload: false, multicore: false, threads: '', softParticlesOff: false, execConfig: '', language: 'System default', extraCommands: '' }
+};
+
+function applyCommandPreset(name) {
+  const preset = COMMAND_PRESETS[name];
+  if (!preset) return;
+  Object.entries(preset).forEach(([id, value]) => setControl(id, value));
+  if (name !== 'clear' && appState?.native?.refresh) {
+    setControl('refreshRate', String(appState.native.refresh));
+  }
+  updateDisplayPreview();
+  scheduleReview();
+  showToast(name === 'clear' ? 'Launch commands cleared' : 'Quick set loaded', 'Review the changes, then apply or save them.');
+}
+
 function buildCommand() {
   const parts = [];
   if (getValue('fpsCap') !== '') parts.push(`+fps_max ${getValue('fpsCap')}`);
@@ -574,6 +607,13 @@ function buildCommand() {
   if (getBool('forceNoVsync')) parts.push('-forcenovsync');
   if (getBool('highPriority')) parts.push('-high');
   if (getBool('developerMode')) parts.push('-dev');
+  if (getValue('refreshRate')) parts.push(`-refresh ${getValue('refreshRate')}`);
+  if (getBool('dx12')) parts.push('-eac_launcher_settings SettingsDX12.json');
+  if (getBool('rawInput')) parts.push('+m_rawinput 1');
+  if (getBool('preload')) parts.push('-preload +cl_forcepreload 1');
+  if (getBool('multicore')) parts.push('+mat_queue_mode 2');
+  if (getValue('threads')) parts.push(`-threads ${getValue('threads')}`);
+  if (getBool('softParticlesOff')) parts.push('-softparticlesdefaultoff');
   const execConfig = getValue('execConfig').trim();
   if (execConfig && /^[A-Za-z0-9_.-]+$/.test(execConfig)) parts.push(`+exec ${execConfig}`);
   if (getValue('language') && getValue('language') !== 'System default') parts.push(`-language ${getValue('language')}`);
@@ -588,6 +628,15 @@ function buildCommand() {
   }
   if (getBool('adaptiveEnabled')) parts.push(`+dvs_scale_min ${(parseInt(getValue('renderScale'), 10) / 100).toFixed(2)}`);
   const extra = getValue('extraCommands').replace(/[\r\n\0]+/g, ' ').trim();
+  // Flag commands typed into Additional commands that a card above already sets;
+  // Apex uses whichever comes last, which is easy to miss.
+  const generated = new Set(parts.join(' ').split(/\s+/).filter(token => /^[-+][A-Za-z_]/.test(token)).map(token => token.toLowerCase()));
+  const duplicates = [...new Set(extra.split(/\s+/).filter(token => generated.has(token.toLowerCase())))];
+  const warning = $('#commandWarning');
+  if (warning) {
+    warning.hidden = !duplicates.length;
+    warning.textContent = duplicates.length ? `Also set in Additional commands: ${duplicates.join(', ')}. The later value wins — remove it from one place.` : '';
+  }
   if (extra) parts.push(extra);
   const command = parts.join(' ');
   const preview = $('#commandPreview');
@@ -879,6 +928,7 @@ function bindEvents() {
     });
     $('#commandFilterEmpty')?.toggleAttribute('hidden', visible > 0);
   });
+  $$('[data-command-preset]').forEach(button => button.addEventListener('click', () => applyCommandPreset(button.dataset.commandPreset)));
   $('#execConfig')?.addEventListener('input', event => {
     const valid = !event.target.value || /^[A-Za-z0-9_.-]+$/.test(event.target.value);
     event.target.setCustomValidity(valid ? '' : 'Use only letters, numbers, dots, underscores, and hyphens.');
@@ -1043,7 +1093,9 @@ function bindEvents() {
 function hydrate(state) {
   appState = state;
   $('#gpuName').textContent = state.hardware.gpu;
-  $('#nativeResolution').textContent = `Native ${state.native.width} × ${state.native.height}`;
+  $('#nativeResolution').textContent = `Native ${state.native.width} × ${state.native.height}${state.native.refresh ? ` · ${state.native.refresh} Hz` : ''}`;
+  const refreshStatus = $('#refreshStatus');
+  if (refreshStatus) refreshStatus.textContent = state.native.refresh ? `Your monitor reports ${state.native.refresh} Hz` : '';
   $('#recommendedName').textContent = state.hardware.label;
   $('#configPath').textContent = state.configPath;
   $('#configStatus').textContent = state.configExists ? 'Connected' : 'Start Apex once to create this file';

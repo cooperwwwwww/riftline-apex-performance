@@ -532,3 +532,11 @@ html, body { min-width: 0; min-height: 0; height: 100%; }
   .sidebar nav { margin-top: 10px; }
   .workspace { padding-top: 16px; }
 }
+
+/* Build 25: launch command quick sets and duplicate warning. */
+.command-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 0 0 12px; }
+.command-presets > span { margin-right: 4px; color: var(--muted); font-size: 7px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.command-presets button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 7px; background: #151d28; color: #dce4ed; font-size: 10px; font-weight: 800; cursor: pointer; }
+.command-presets button:hover { border-color: var(--line-strong); background: #1d2734; }
+.command-presets button[data-command-preset="clear"] { color: #ff9b8f; }
+.command-warning { margin: -6px 0 14px; padding: 9px 11px; border: 1px solid rgba(255,190,80,.35); border-radius: 7px; background: rgba(255,190,80,.08); color: #ffd28a; font-size: 10px; line-height: 1.5; }

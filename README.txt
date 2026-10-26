@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 24.0
+RIFTLINE - APEX PERFORMANCE SUITE 25.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,19 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 25.0
+--------------------
+- New launch commands on the Launch page: refresh rate (-refresh), DirectX 12
+  renderer, raw mouse input (+m_rawinput 1), preload map assets (-preload
+  +cl_forcepreload 1), multicore rendering (+mat_queue_mode 2), worker threads
+  (-threads), and disable soft particles (-softparticlesdefaultoff).
+- Quick sets: Competitive, Low-end PC, Streamer, and Clear all fill the command
+  cards in one click. Nothing is saved until you apply or save.
+- Riftline detects your monitor's refresh rate and shows it on Overview and next
+  to the refresh-rate command; quick sets use it automatically.
+- A warning appears when Additional commands repeats something a card already
+  sets, since Apex only uses the later value.
 
 WHAT CHANGED IN 24.0
 --------------------

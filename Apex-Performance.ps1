@@ -269,6 +269,15 @@ function Get-NativeResolution {
     return [pscustomobject]@{ Width = 1920; Height = 1080 }
 }
 
+function Get-MonitorRefreshRate {
+    # Highest refresh rate reported by an active display; 0 when Windows does not say.
+    try {
+        $rates = @(Get-CimInstance Win32_VideoController | ForEach-Object { [int]$_.CurrentRefreshRate } | Where-Object { $_ -ge 24 -and $_ -le 1000 })
+        if ($rates.Count -gt 0) { return [int]($rates | Measure-Object -Maximum).Maximum }
+    } catch { }
+    return 0
+}
+
 function Get-CommonLowValues {
     return @{
         'setting.cl_gib_allow' = '0'
@@ -1371,7 +1380,7 @@ function Get-RiftlineState {
     return [pscustomobject]@{
         ok = $true
         hardware = [pscustomobject]@{ cpu = $hardware.CPU; gpu = $hardware.GPU; profile = $hardware.Profile; label = $hardware.Label }
-        native = [pscustomobject]@{ width = $native.Width; height = $native.Height }
+        native = [pscustomobject]@{ width = $native.Width; height = $native.Height; refresh = (Get-MonitorRefreshRate) }
         configPath = $configPath
         configExists = (Test-Path -LiteralPath $configPath)
         configLocked = (Get-ApexConfigLockState)
@@ -1384,7 +1393,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 24
+        version = 25
     }
 }
 
