@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="riftline-token" content="__TOKEN__">
+  <title>Riftline</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar" data-drag-region>
+      <button class="brand" data-page="overview" aria-label="Riftline home">
+        <span class="brand-mark">R</span>
+        <span><strong>RIFTLINE</strong><small>APEX PERFORMANCE SUITE</small></span>
+      </button>
+      <div class="preset-strip" aria-label="Quick presets">
+        <span>Preset</span>
+        <button data-profile="Competitive" title="Applies the Competitive native profile now (backed up first)">Competitive</button>
+        <button data-profile="Balanced" title="Applies the Balanced profile now (backed up first)">Balanced</button>
+        <button data-load="quality" title="Loads best-picture values for review — nothing is written until you apply">Visual</button>
+      </div>
+      <div class="busy-indicator" id="busyIndicator" aria-live="polite"><i></i><span id="busyLabel">Working…</span></div>
+      <div class="top-actions">
+        <button class="review-button" data-open-review><span>Review</span><b id="reviewCount">0</b></button>
+        <button class="button button-primary" data-apply>Apply changes</button>
+        <button class="button button-dark" data-launch>Launch Apex</button>
+        <div class="window-controls"><button data-window="minimize" aria-label="Minimize Riftline">—</button><button data-window="maximize" aria-label="Maximize Riftline">□</button><button class="window-close" data-window="close" data-shutdown aria-label="Close Riftline">×</button></div>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <label class="search-wrap">
+        <span>Search</span>
+        <input id="settingsSearch" type="search" placeholder="Find a setting" autocomplete="off" role="combobox" aria-controls="searchResults" aria-expanded="false">
+        <kbd>Ctrl K</kbd>
+      </label>
+      <div class="search-results" id="searchResults" role="listbox" aria-label="Matching settings" hidden></div>
+      <nav>
+        <button class="nav-item active" data-page="overview"><span>01</span>Overview</button>
+        <button class="nav-item" data-page="display"><span>02</span>Display</button>
+        <button class="nav-item" data-page="visuals"><span>03</span>Visuals</button>
+        <button class="nav-item" data-page="advanced"><span>04</span>Advanced</button>
+        <button class="nav-item" data-page="launch"><span>05</span>Launch</button>
+        <button class="nav-item" data-page="safety"><span>06</span>Safety</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="connection"><i></i><span id="connectionText">Connecting to Apex…</span></div>
+        <div class="build">RIFTLINE <span>BUILD 23 · OFFLINE NATIVE</span></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section class="page active" data-page-panel="overview">
+        <div class="page-heading">
+          <div><p class="eyebrow">Performance command center</p><h1>Ready for the drop.</h1><p>Choose a tuned starting point, review the exact changes, then launch through the official Steam route.</p></div>
+          <div class="hardware-card"><span>Detected hardware</span><strong id="gpuName">Scanning GPU…</strong><small id="nativeResolution">Native display</small></div>
+        </div>
+        <div class="hero-grid">
+          <article class="hero-card">
+            <div class="hero-copy"><span class="status-chip">Recommended</span><h2 id="recommendedName">Auto profile</h2><p>Riftline reads your graphics hardware and chooses the safest high-FPS profile for this PC.</p><button class="button button-primary" data-profile="Auto">Apply recommended</button></div>
+            <div class="hero-metrics"><div><strong>1 click</strong><span>Backed up first</span></div><div><strong>Safe</strong><span>No game-file edits</span></div><div><strong>Fast</strong><span>Official launch path</span></div></div>
+          </article>
+          <article class="brief-card"><span class="eyebrow">Current target</span><h3 id="currentTarget">2560 × 1440</h3><div class="meter" title="Pixel load compared with your native display"><i id="targetMeter" style="width:100%"></i></div><p id="targetSummary">Native output · low-latency profile · automatic backup</p><button class="text-button" data-page="display">Tune display settings <span>→</span></button></article>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">Performance profiles</p><h2>Pick the trade-off you want</h2></div><p>Every preset is reversible. Resolution-changing profiles are labeled clearly.</p></div>
+        <div class="preset-capture-grid" aria-label="Real Apex preset comparisons">
+          <button data-load="fps" style="--capture:url('../assets/previews/preset_competitive.webp')"><span>Competitive</span><strong>Clean visibility</strong><small>Real in-game capture</small></button>
+          <button data-load="balanced" style="--capture:url('../assets/previews/preset_balanced.webp')"><span>Balanced</span><strong>Detail + frames</strong><small>Real in-game capture</small></button>
+          <button data-load="quality" style="--capture:url('../assets/previews/preset_ultra.webp')"><span>Ultra</span><strong>Full atmosphere</strong><small>Real in-game capture</small></button>
+        </div>
+        <div class="profile-grid">
+          <button class="profile-card competitive" data-profile="Competitive"><span>Competitive native</span><strong>Maximum clarity.<br>Minimum noise.</strong><small>Native resolution · uncapped FPS</small><em>Apply profile</em></button>
+          <button class="profile-card smooth" data-profile="Performance1080"><span>Smooth 1080p</span><strong>Stable frames.<br>Sharp image.</strong><small>1920 × 1080 · 144 FPS</small><em>Apply profile</em></button>
+          <button class="profile-card raw" data-profile="LowEnd720"><span>Raw max FPS</span><strong>Less detail.<br>More headroom.</strong><small>1280 × 720 · uncapped FPS</small><em>Apply profile</em></button>
+          <button class="profile-card turbo" data-profile="TurboCurrent"><span>Turbo current</span><strong>Keep resolution.<br>Drop the extras.</strong><small>Current output · adaptive 3D</small><em>Apply profile</em></button>
+          <button class="profile-card emergency" data-profile="UltraLow"><span>Emergency 540p</span><strong>For very<br>weak hardware.</strong><small>960 × 540 · 45 FPS</small><em>Apply profile</em></button>
+          <button class="profile-card potato" data-profile="Potato360"><span>Potato 360p</span><strong>The absolute<br>minimum.</strong><small>640 × 360 · 30 FPS</small><em>Apply profile</em></button>
+        </div>
+        <article class="profile-manager">
+          <div><p class="eyebrow">Named profiles</p><h3>Save your complete setup</h3><span>Graphics, display, advanced values, and launch commands stay together.</span><b class="active-profile-badge" id="activeProfileBadge">NO ACTIVE PROFILE</b></div>
+          <div class="profile-manager-controls"><input id="customProfileName" maxlength="40" placeholder="Profile name"><button data-custom-save>Save current</button><select id="customProfiles"><option value="">No saved profiles</option></select><button data-custom-apply>Apply</button><button class="danger" data-custom-delete>Delete</button></div>
+        </article>
+      </section>
+
+      <section class="page" data-page-panel="display">
+        <div class="page-heading compact"><div><p class="eyebrow">Output and render scale</p><h1>Display</h1><p>Control the final picture, screen shape, and how far internal 3D resolution may scale under load.</p></div><div class="impact-badge"><span>Estimated load</span><strong id="pixelLoad">100%</strong></div></div>
+        <div class="content-grid display-grid">
+          <div class="settings-column">
+            <article class="setting-card featured" data-search="resolution width height native custom">
+              <div class="setting-title"><div><span class="step">01</span><h3>Output resolution</h3><p>Final display and HUD dimensions</p></div><span class="value-pill" id="resolutionPill">2560 × 1440</span></div>
+              <div class="resolution-fields"><label>Width<input id="width" type="number" min="640" max="7680" value="2560"></label><span>×</span><label>Height<input id="height" type="number" min="360" max="4320" value="1440"></label></div>
+              <div class="choice-row"><button data-resolution="native">Native</button><button data-resolution="1920x1080">1920 × 1080</button><button data-resolution="1280x720">1280 × 720</button><button data-resolution="1440x1080">1440 × 1080</button></div>
+              <label class="catalog-label">More resolutions and aspect ratios<select id="resolutionCatalog">
+                <option value="">Choose a preset…</option>
+                <optgroup label="16:9 Widescreen"><option>640x360</option><option>854x480</option><option>960x540</option><option>1024x576</option><option>1280x720</option><option>1366x768</option><option>1600x900</option><option>1920x1080</option><option>2560x1440</option><option>3840x2160</option></optgroup>
+                <optgroup label="16:10 Widescreen"><option>960x600</option><option>1280x800</option><option>1440x900</option><option>1680x1050</option><option>1920x1200</option><option>2560x1600</option></optgroup>
+                <optgroup label="4:3 Classic / stretched"><option>640x480</option><option>800x600</option><option>960x720</option><option>1024x768</option><option>1152x864</option><option>1280x960</option><option>1440x1080</option><option>1600x1200</option><option>1920x1440</option><option>2304x1728</option><option>2560x1920</option></optgroup>
+                <optgroup label="5:4 Classic / stretched"><option>640x512</option><option>800x640</option><option>960x768</option><option>1280x1024</option><option>1600x1280</option><option>2560x2048</option></optgroup>
+                <optgroup label="3:2 Wide classic"><option>960x640</option><option>1440x960</option><option>1920x1280</option><option>2160x1440</option><option>2880x1920</option></optgroup>
+                <optgroup label="21:9 Ultrawide"><option>1280x540</option><option>1720x720</option><option>2560x1080</option><option>3440x1440</option><option>3840x1600</option><option>5120x2160</option></optgroup>
+                <optgroup label="32:10 Super ultrawide"><option>2560x800</option><option>3840x1200</option><option>5120x1600</option></optgroup>
+                <optgroup label="32:9 Super ultrawide"><option>1920x540</option><option>2560x720</option><option>3840x1080</option><option>5120x1440</option><option>7680x2160</option></optgroup>
+              </select></label>
+            </article>
+            <article class="setting-card" data-search="screen shape stretched black bars aspect ratio">
+              <div class="setting-title"><div><span class="step">02</span><h3>Black bars or no black bars</h3><p>Choose exactly how non-native aspect ratios fill your display</p></div></div>
+              <div class="segmented aspect-choice" data-segment="aspect"><button class="active" data-value="default">Black bars</button><button data-value="stretched">No black bars</button></div>
+              <div class="notice"><strong id="aspectNoticeTitle">Black bars</strong><span id="aspectNoticeText">Keeps the original shape of a non-native resolution. Riftline changes Apex only—not Windows, your monitor, or GPU settings.</span></div>
+            </article>
+            <article class="setting-card" data-search="window fullscreen borderless windowed">
+              <div class="setting-title"><div><span class="step">03</span><h3>Window mode</h3><p>Fullscreen gives stretched modes the cleanest path</p></div></div>
+              <div class="segmented three" data-segment="window"><button class="active" data-value="Fullscreen">Fullscreen</button><button data-value="Borderless">Borderless</button><button data-value="Windowed">Windowed</button></div>
+              <small class="segment-note" id="windowNote" hidden>No black bars needs exclusive fullscreen, so Fullscreen is locked while it is selected.</small>
+            </article>
+            <article class="setting-card" data-search="adaptive resolution target fps 3d render scale">
+              <div class="setting-title"><div><span class="step">04</span><h3>Adaptive 3D resolution</h3><p>Lowers only world rendering when the GPU misses target FPS</p></div><label class="switch"><input id="adaptiveEnabled" type="checkbox"><span></span></label></div>
+              <div class="dual-fields"><label>Target FPS<select id="adaptiveTarget"><option>60</option><option>75</option><option>90</option><option selected>120</option><option>144</option><option>165</option><option>240</option></select></label><label>Minimum render scale<select id="renderScale"><option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option selected>100%</option></select></label></div>
+            </article>
+          </div>
+          <aside class="detail-panel aspect-panel">
+            <div class="preview-kicker"><span class="eyebrow">Aspect geometry preview</span><b>LIVE</b></div>
+            <div class="aspect-monitor main" id="mainAspectStage">
+              <div class="aspect-content"><img src="../assets/previews/preset_balanced.webp" alt="Real Apex Legends scene used to preview aspect-ratio geometry"><span class="geometry-circle" aria-hidden="true"></span></div>
+              <i id="aspectLabel">16:9</i><b id="barsLabel">NO BLACK BARS</b>
+            </div>
+            <div class="aspect-compare" aria-label="Black bars compared with stretched no-black-bars output">
+              <div><header><strong>Black bars</strong><span>Original geometry</span></header><div class="aspect-monitor mini" id="barsCompareStage"><div class="aspect-content"><img src="../assets/previews/preset_balanced.webp" alt="Letterboxed Apex preview"><span class="geometry-circle" aria-hidden="true"></span></div></div></div>
+              <div><header><strong>No black bars</strong><span>Stretched to fill</span></header><div class="aspect-monitor mini" id="stretchCompareStage"><div class="aspect-content"><img src="../assets/previews/preset_balanced.webp" alt="Stretched Apex preview"><span class="geometry-circle" aria-hidden="true"></span></div></div></div>
+            </div>
+            <div class="geometry-key"><span><i></i>Circle = unchanged geometry</span><span><i></i>Ellipse = horizontal stretch</span></div>
+            <h2 id="displayTitle">Native sharp</h2><p id="displayDescription">Full native output preserves the clearest image and UI. Lower output resolutions reduce pixel load and may stretch in fullscreen.</p>
+            <div class="detail-stats"><div><span>Pixel load</span><strong id="detailPixelLoad">100%</strong></div><div><span>Window mode</span><strong id="detailWindow">Fullscreen</strong></div><div><span>Adaptive floor</span><strong id="detailScale">Off</strong></div></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="page" data-page-panel="visuals">
+        <div class="page-heading compact"><div><p class="eyebrow">Rendering quality</p><h1>Visuals</h1><p>Keep the details that matter to you and cut the effects that cost frames.</p></div><button class="preset-pill" data-load="fps">Load max FPS values</button></div>
+        <article class="engine-preview" id="visualPreview">
+          <div class="engine-preview-media"><img id="visualPreviewImage" src="../assets/previews/stream_memory_1000000.webp" alt="Real Apex Legends graphics setting preview"><span id="visualPreviewValue">3 GB</span></div>
+          <div class="engine-preview-copy"><div><p class="eyebrow">Real in-game setting preview</p><h2 id="visualPreviewTitle">Texture memory</h2><p id="visualPreviewDescription">See the supplied capture for the exact value. Select or toggle a setting below to compare it.</p></div><div class="preview-meta"><span>Source</span><strong>Captured in Apex</strong><small id="visualPreviewFile">stream_memory_1000000</small></div></div>
+        </article>
+        <div class="settings-list two-up">
+          <article class="setting-card" data-search="texture memory vram streaming budget"><div class="setting-title"><div><h3>Texture streaming budget</h3><p>Apex's streaming tiers — match your graphics card's VRAM</p></div><select id="textureBudget"><option value="None">None</option><option value="Very Low">Very Low · 2 GB VRAM</option><option value="Low">Low · 2–3 GB VRAM</option><option value="Medium" selected>Medium · 3 GB VRAM</option><option value="High">High · 4 GB VRAM</option><option value="Very High">Very High · 6 GB VRAM</option><option value="Insane">Insane · 8 GB VRAM</option></select></div></article>
+          <article class="setting-card" data-search="texture detail quality"><div class="setting-title"><div><h3>Texture detail</h3><p>Sharpness of surfaces and weapon skins</p></div><select id="textureQuality"><option>High</option><option selected>Low</option><option>Very Low</option></select></div></article>
+          <article class="setting-card" data-search="anisotropic texture sharpness filtering"><div class="setting-title"><div><h3>Texture filtering</h3><p>Keeps angled surfaces clear</p></div><select id="anisotropic"><option>1x</option><option>2x</option><option selected>4x</option><option>8x</option><option>16x</option></select></div></article>
+          <article class="setting-card" data-search="anti aliasing tsaa smooth edges"><div class="setting-title"><div><h3>Anti-aliasing</h3><p>Smooths jagged edges</p></div><div class="segmented small" data-segment="aa"><button class="active" data-value="Off">Off</button><button data-value="TSAA">TSAA</button></div></div></article>
+          <article class="setting-card" data-search="model draw distance detail"><div class="setting-title"><div><h3>Model detail</h3><p>Distance before simpler models appear</p></div><select id="modelDetail"><option>Minimum</option><option>Very Low</option><option selected>Low</option><option>Medium</option><option>High</option></select></div></article>
+          <article class="setting-card" data-search="particle effects smoke sparks"><div class="setting-title"><div><h3>Particle detail</h3><p>Density of smoke, sparks, and explosions</p></div><select id="particleDetail"><option selected>Low</option><option>Medium</option><option>High</option></select></div></article>
+          <article class="setting-card toggle-card" data-search="sun shadows"><div><h3>Sun shadows</h3><p>Directional shadows on buildings and terrain</p></div><label class="switch"><input id="shadows" type="checkbox"><span></span></label></article>
+          <article class="setting-card toggle-card" data-search="volumetric fog lighting effects"><div><h3>Fog and light effects</h3><p>Volumetric light beams and haze</p></div><label class="switch"><input id="effects" type="checkbox"><span></span></label></article>
+          <article class="setting-card toggle-card" data-search="ambient occlusion ssao shading"><div><h3>Ambient occlusion</h3><p>Soft contact shading in corners</p></div><label class="switch"><input id="ambientOcclusion" type="checkbox"><span></span></label></article>
+          <article class="setting-card toggle-card" data-search="map decoration dressing detail"><div><h3>Map decoration</h3><p>Additional environmental set dressing</p></div><label class="switch"><input id="mapDecorations" type="checkbox"><span></span></label></article>
+          <article class="setting-card toggle-card" data-search="decals impact marks bullet holes"><div><h3>Impact marks</h3><p>Bullet holes and scorch decals</p></div><label class="switch"><input id="decals" type="checkbox"><span></span></label></article>
+          <article class="setting-card toggle-card" data-search="ragdolls bodies physics"><div><h3>Ragdolls</h3><p>Bodies remaining after combat</p></div><label class="switch"><input id="ragdolls" type="checkbox"><span></span></label></article>
+          <article class="setting-card toggle-card" data-search="vsync screen tearing"><div><h3>V-Sync</h3><p>Stops tearing but can add latency</p></div><label class="switch"><input id="vsync" type="checkbox"><span></span></label></article>
+          <article class="setting-card" data-search="nvidia reflex amd low latency boost input lag"><div class="setting-title"><div><h3>Input-lag reduction</h3><p>NVIDIA Reflex / AMD low latency</p></div><select id="lowLatency"><option selected>Keep current</option><option>Off</option><option>On</option><option>On + Boost</option></select></div></article>
+        </div>
+      </section>
+
+      <section class="page" data-page-panel="advanced">
+        <div class="page-heading compact"><div><p class="eyebrow">Engine-level controls</p><h1>Advanced</h1><p>Fine-tune memory, shadows, distance, particles, physics, and field of view.</p></div><div class="preset-actions"><button data-load="fps">Most FPS</button><button data-load="balanced">Balanced</button><button data-load="quality">Best picture</button></div></div>
+        <article class="engine-preview advanced-preview" id="advancedPreview">
+          <div class="engine-preview-media"><img id="advancedPreviewImage" src="../assets/previews/csm_cascade_res_512.webp" alt="Real Apex Legends advanced setting preview"><span id="advancedPreviewValue">512</span></div>
+          <div class="engine-preview-copy"><div><p class="eyebrow">Real in-game setting preview</p><h2 id="advancedPreviewTitle">Sun-shadow resolution</h2><p id="advancedPreviewDescription">The preview follows the advanced control you focus or change.</p></div><div class="preview-meta"><span>Source</span><strong>Captured in Apex</strong><small id="advancedPreviewFile">csm_cascade_res_512</small></div></div>
+        </article>
+        <div class="advanced-grid">
+          <article class="settings-group"><div class="group-heading"><span>Textures and memory</span><small>04 controls</small></div>
+            <label class="control-row"><span><strong>Smooth texture transitions</strong><small>Linear mip filtering</small></span><label class="switch"><input id="linearMip" type="checkbox"><span></span></label></label>
+            <label class="control-row"><span><strong>Dynamic texture budget</strong><small>Let Apex adapt streaming memory</small></span><label class="switch"><input id="dynamicBudget" type="checkbox" checked><span></span></label></label>
+            <label class="control-row"><span><strong>Backbuffers</strong><small>One gives the lowest latency</small></span><select id="backbuffers"><option selected>1</option><option>2</option><option>3</option></select></label>
+            <label class="control-row"><span><strong>Combat debris</strong><small>Small fragments and gibs</small></span><label class="switch"><input id="gibs" type="checkbox"><span></span></label></label>
+          </article>
+          <article class="settings-group"><div class="group-heading"><span>Shadows and AO</span><small>07 controls</small></div>
+            <label class="control-row"><span><strong>Shadow-map minimum</strong><small>0 is fastest</small></span><select id="shadowDepth"><option selected>0</option><option>128</option><option>256</option><option>512</option><option>1024</option></select></label>
+            <label class="control-row"><span><strong>Shadow upscaling</strong><small>Maximum upscale factor</small></span><select id="shadowUpres"><option selected>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+            <label class="control-row"><span><strong>Dynamic shadows</strong><small>Maximum moving shadows</small></span><select id="dynamicShadows"><option selected>0</option><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
+            <label class="control-row"><span><strong>Sun-shadow resolution</strong><small>CSM cascade resolution</small></span><select id="csmResolution"><option>0</option><option>128</option><option>256</option><option selected>512</option><option>1024</option></select></label>
+            <label class="control-row"><span><strong>Sun-shadow coverage</strong><small>Near or wide cascade area</small></span><select id="shadowCoverage"><option value="1" selected>1 · Near</option><option value="2">2 · Wide</option></select></label>
+            <label class="control-row"><span><strong>Ambient-occlusion quality</strong><small>0 disables samples; 4 adds depth</small></span><select id="ssaoQuality"><option value="0" selected>0 · Off</option><option value="4">4 · High</option></select></label>
+            <label class="control-row"><span><strong>Downsample ambient occlusion</strong><small>Faster when AO is enabled</small></span><label class="switch"><input id="ssaoDownsample" type="checkbox" checked><span></span></label></label>
+          </article>
+          <article class="settings-group wide"><div class="group-heading"><span>Distance, detail, physics, and view</span><small>07 controls</small></div>
+            <div class="control-grid">
+              <label><span>Geometry LOD scale</span><select id="lodScale"><option>Auto</option><option>0.25</option><option>0.35</option><option>0.50</option><option selected>0.60</option><option>0.70</option><option>0.80</option><option>1.00</option><option>1.50</option><option>2.00</option></select></label>
+              <label><span>Object fade distance</span><select id="fadeScale"><option>Auto</option><option>0.25</option><option>0.35</option><option>0.50</option><option selected>0.60</option><option>0.70</option><option>0.80</option><option>1.00</option></select></label>
+              <label><span>Map detail level</span><select id="mapDetailLevel"><option value="1" selected>1 · Standard</option><option value="2">2 · Dense</option></select></label>
+              <label><span>Decal limit</span><select id="decalLimit"><option value="64" selected>64</option><option value="128">128</option><option value="256">256</option></select></label>
+              <label><span>Particle fallback</span><select id="particleFallback"><option>Auto</option><option>Default</option><option selected>Balanced</option><option>Aggressive</option></select></label>
+              <label><span>Field of view</span><select id="viewFov"><option selected>Keep current</option><option>70</option><option>80</option><option>90</option><option>100</option><option>104</option><option>106</option><option>110</option><option>120</option></select></label>
+              <label class="inline-toggle"><span><strong>Ragdoll collision</strong><small>Extra body physics</small></span><label class="switch"><input id="ragdollCollision" type="checkbox"><span></span></label></label>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" data-page-panel="launch">
+        <div class="page-heading compact"><div><p class="eyebrow">Official Steam launch path</p><h1>Launch studio</h1><p>Customize the complete safe launch line, reticle color, frame limits, language, display behavior, and expert switches.</p></div><div class="safe-badge">Validated command set</div></div>
+        <article class="reticle-designer" data-search="reticle crosshair color rgb colour wheel">
+          <div class="reticle-scene"><img src="../assets/previews/preset_competitive.webp" alt="Apex Legends scene behind the custom reticle preview"><span class="reticle-crosshair" id="reticlePreview"><i></i><b></b><em></em></span><small>LIVE RETICLE PREVIEW</small></div>
+          <div class="reticle-controls">
+            <div class="reticle-heading"><div><p class="eyebrow">Profile-level customization</p><h2>Custom reticle color</h2><p>Uses Apex's saved RGB reticle setting with a backup. The color stays inside the normal 0–255 range.</p></div><label class="switch"><input id="customReticle" type="checkbox"><span></span></label></div>
+            <div class="reticle-picker-row">
+              <label class="color-wheel" data-tooltip="Open the Windows color picker and choose any standard RGB reticle color."><span>Color wheel</span><input id="reticleColor" type="color" value="#25f4ee"></label>
+              <label><span>Red</span><input id="reticleRed" type="number" min="0" max="255" value="37"></label>
+              <label><span>Green</span><input id="reticleGreen" type="number" min="0" max="255" value="244"></label>
+              <label><span>Blue</span><input id="reticleBlue" type="number" min="0" max="255" value="238"></label>
+            </div>
+            <div class="reticle-swatches"><button data-reticle="#25f4ee" style="--swatch:#25f4ee" title="Cyan"></button><button data-reticle="#7dff62" style="--swatch:#7dff62" title="Lime"></button><button data-reticle="#ffef52" style="--swatch:#ffef52" title="Yellow"></button><button data-reticle="#ff5d68" style="--swatch:#ff5d68" title="Coral"></button><button data-reticle="#ff65d8" style="--swatch:#ff65d8" title="Magenta"></button><button data-reticle="#ffffff" style="--swatch:#ffffff" title="White"></button></div>
+          </div>
+        </article>
+        <div class="launch-layout">
+          <div class="settings-column">
+            <div class="command-library-heading"><div><p class="eyebrow">Command library</p><h2>Build the exact launch line</h2></div><label><span>Filter</span><input id="launchCommandSearch" type="search" placeholder="FPS, controller, language…"></label></div>
+            <article class="setting-card command-card" data-command-search="fps frame rate cap fps_max" data-tooltip="+fps_max limits gameplay FPS. Use 0 for uncapped; a stable cap can improve frame pacing and heat."><div class="setting-title"><div><code>+fps_max</code><h3>Gameplay FPS cap</h3><p>Game default adds nothing; 0 is uncapped</p></div><select id="fpsCap"><option value="">Game default</option><option value="0">0 · Uncapped</option><option>30</option><option>45</option><option>60</option><option>75</option><option>90</option><option>120</option><option>138</option><option>144</option><option>165</option><option>180</option><option>200</option><option>240</option><option>300</option></select></div></article>
+            <article class="setting-card command-card" data-command-search="lobby fps cap lobby_max_fps" data-tooltip="+lobby_max_fps limits the menu and lobby. A lower lobby cap reduces GPU load while you are not in a match."><div class="setting-title"><div><code>+lobby_max_fps</code><h3>Lobby FPS cap</h3><p>Separate limit for menus and the lobby</p></div><select id="lobbyFps"><option selected>Keep current</option><option>0</option><option>30</option><option>60</option><option>90</option><option>120</option><option>144</option></select></div></article>
+            <article class="setting-card command-card" data-command-search="fps counter cl_showfps telemetry" data-tooltip="+cl_showfps 1 shows a small basic FPS readout. Value 4 displays the more detailed engine readout."><div class="setting-title"><div><code>+cl_showfps</code><h3>FPS counter</h3><p>Optional in-game performance readout</p></div><select id="fpsCounter"><option selected>Off</option><option>Basic</option><option>Detailed</option></select></div></article>
+            <article class="setting-card toggle-card command-card" data-command-search="novid intro startup video" data-tooltip="-novid skips the startup movie and reaches the main menu sooner."><div><code>-novid</code><h3>Skip intro video</h3><p>Faster path to the menu</p></div><label class="switch"><input id="skipIntro" type="checkbox" checked><span></span></label></article>
+            <article class="setting-card toggle-card command-card" data-command-search="nojoy controller gamepad mouse keyboard" data-tooltip="-nojoy skips joystick initialization. Leave this off if you play with any controller."><div><code>-nojoy</code><h3>Disable controller input</h3><p>Mouse-and-keyboard systems only</p></div><label class="switch"><input id="noJoy" type="checkbox"><span></span></label></article>
+            <article class="setting-card toggle-card command-card" data-command-search="vsync latency tearing forcenovsync" data-tooltip="-forcenovsync requests V-Sync off at launch. This can reduce latency but may allow visible tearing."><div><code>-forcenovsync</code><h3>Force V-Sync off</h3><p>Lower latency; possible tearing</p></div><label class="switch"><input id="forceNoVsync" type="checkbox"><span></span></label></article>
+            <article class="setting-card toggle-card command-card" data-command-search="priority high cpu process" data-tooltip="-high requests high process priority. It can help on some PCs but may reduce responsiveness for streaming or background apps."><div><code>-high</code><h3>High process priority</h3><p>Experimental; watch background apps</p></div><label class="switch"><input id="highPriority" type="checkbox"><span></span></label></article>
+            <article class="setting-card toggle-card command-card" data-command-search="developer dev startup console" data-tooltip="-dev enables Source developer launch behavior and may skip presentation screens. Its behavior can change after game updates."><div><code>-dev</code><h3>Developer launch mode</h3><p>Patch-sensitive startup behavior</p></div><label class="switch"><input id="developerMode" type="checkbox"><span></span></label></article>
+            <article class="setting-card command-card" data-command-search="exec autoexec cfg config" data-tooltip="+exec runs one .cfg file from Apex's cfg folder at startup. Only letters, numbers, dots, dashes, and underscores are accepted."><div class="setting-title"><div><code>+exec</code><h3>Run a custom CFG</h3><p>Optional config filename</p></div><input id="execConfig" maxlength="64" pattern="[A-Za-z0-9_.-]+" placeholder="autoexec.cfg"></div></article>
+            <article class="setting-card command-card" data-command-search="language english french german japanese audio voice text steam" data-tooltip="Changes interface and subtitle language with -language. Riftline no longer forces an unavailable voice pack, which prevents language-change crashes. Install voice packs through Apex Properties in Steam."><div class="setting-title"><div><code>-language</code><h3>Safe language override</h3><p>Interface and subtitles; voice follows installed Steam files</p><small class="language-status" id="languageStatus">Checking installed language files…</small></div><select id="language"><option selected>System default</option><option value="english">English</option><option value="french">French</option><option value="german">German</option><option value="italian">Italian</option><option value="spanish">Spanish</option><option value="japanese">Japanese</option><option value="korean">Korean</option><option value="schinese">Simplified Chinese</option><option value="tchinese">Traditional Chinese</option></select></div></article>
+            <article class="setting-card command-card" data-command-search="raw expert custom commands" data-tooltip="Expert escape hatch. Riftline blocks line breaks and null characters, but unsupported commands can still be ignored or cause startup problems."><div class="setting-title stack"><div><code>EXPERT</code><h3>Additional commands</h3><p>Optional commands you already trust</p></div><textarea id="extraCommands" rows="3" placeholder="Leave blank for the validated command set"></textarea></div></article>
+            <div class="command-filter-empty" id="commandFilterEmpty" hidden>No launch command matches that filter.</div>
+          </div>
+          <aside class="command-panel"><div class="command-panel-heading"><span class="eyebrow">Generated command</span><small id="commandLength">0 / 1024</small></div><pre id="commandPreview">-novid</pre><div class="command-actions"><button data-copy-command>Copy</button><button data-save-command>Save default</button></div><div class="launch-ready"><span>Ready to launch</span><strong>Steam App 1172470</strong><p>Riftline still uses Steam for ownership and the official anti-cheat startup.</p><button class="button button-primary" data-launch>Save and launch Apex</button></div></aside>
+        </div>
+      </section>
+
+      <section class="page" data-page-panel="safety">
+        <div class="page-heading compact"><div><p class="eyebrow">Backups and recovery</p><h1>Safety</h1><p>See exactly where Riftline writes, lock the result, or return to regular Apex.</p></div><div class="safe-badge">Reversible by design</div></div>
+        <div class="safety-grid">
+          <article class="path-card"><span>Apex config folder</span><strong id="configPath">Detecting…</strong><small id="configStatus">Checking connection</small></article>
+          <article class="path-card"><span>Steam installation</span><strong id="steamPath">Detecting…</strong><small id="steamStatus">Checking launcher</small></article>
+          <article class="setting-card toggle-card wide"><div><h3>Lock video config after changes</h3><p>Riftline temporarily unlocks the file to apply changes, then restores the lock.</p></div><label class="switch"><input id="configLock" type="checkbox"><span></span></label></article>
+          <article class="safety-action primary"><div><span>Newest backup</span><h3>Undo the most recent change</h3><p>Restores the newest video, latency, and FOV backups.</p></div><button data-action="restore-latest">Restore newest backup</button></article>
+          <article class="safety-action"><div><span>Original baseline</span><h3>Return to regular Apex</h3><p>Restores the earliest pre-Riftline files and clears app-managed launch commands.</p></div><button data-action="restore-regular">Restore original files</button></article>
+          <article class="safety-action warning"><div><span>Troubleshooting</span><h3>Clear the PSO shader cache</h3><p>Use only for corrupted shaders or update-related visual problems.</p></div><button data-action="clear-cache">Clear shader cache</button></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="review-drawer" id="reviewDrawer" aria-hidden="true"><div class="drawer-scrim" data-close-review></div><aside><div class="drawer-heading"><div><span class="eyebrow">Before you apply</span><h2>Review changes</h2><p class="drawer-sub" id="reviewSummary">Compared with what Apex is using right now.</p></div><button data-close-review>×</button></div><div id="reviewList" class="review-list"><div class="empty-review"><strong>No pending changes</strong><span>Adjust any setting and it will appear here.</span></div></div><div class="drawer-footer"><button class="button button-dark" data-discard-all>Discard all</button><button class="button button-primary" data-apply>Apply all changes</button></div></aside></div>
+  <div class="modal-root" id="modalRoot"></div>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <div class="loading-screen" id="loadingScreen"><div class="loading-brand"><span>R</span><strong>RIFTLINE</strong><small>Starting the offline performance engine</small><i></i></div></div>
+  <script src="app.js"></script>
+</body>
+</html>

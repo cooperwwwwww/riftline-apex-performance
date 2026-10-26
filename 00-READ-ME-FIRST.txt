@@ -1,0 +1,61 @@
+RIFTLINE - APEX PERFORMANCE SUITE
+=================================
+
+Version 23 opens on the settings Apex is actually using, so Apply only changes
+what you changed. Review shows every change as old -> new with one-click undo,
+Launch asks before leaving changes unapplied, and Steam is found on any drive.
+It also fixes the texture-budget values, FOV math, and Ragdoll collision switch.
+See README.txt for the full list.
+
+1. Extract the entire ZIP first.
+2. Close Apex Legends.
+3. Double-click Riftline.exe. START-HERE.cmd remains as a fallback.
+4. Choose a profile or tune settings, then review and apply.
+5. Click Launch Apex when you are ready.
+
+Riftline does not start a localhost web server and does not need an internet
+connection for its interface or settings engine. It loads its packaged UI files
+directly inside a native Windows window. Steam/Apex still need their normal
+connection when you actually launch the game.
+
+To add Riftline to your desktop, double-click CREATE-DESKTOP-SHORTCUT.cmd.
+
+That is all most people need.
+
+Display now includes a live aspect-ratio geometry lab. The circle remains round
+with black bars and becomes an ellipse when a non-native aspect ratio is
+stretched to remove the bars. Visuals and Advanced use all 38 supplied Apex
+captures and switch the preview to the exact setting you focus or change.
+
+Launch Studio now includes gameplay and lobby FPS caps, FPS counters, intro,
+controller, V-Sync, priority, developer, CFG, language, window-mode, adaptive
+scale, and expert command controls. Hover any command card for a plain-language
+description. Advanced includes FOV choices through 120. The Reticle Designer
+adds a live color wheel, RGB fields, color swatches, backup, and profile saving.
+
+Resolution + FPS, Extra FPS, Launch, and Undo + Help are optional. Extra FPS
+includes Most FPS, Balanced, and Best Picture presets. Those presets do not change
+your selected output resolution.
+
+For the final safe performance boost, use Best FPS. It now sets Geometry LOD
+and Object/Effect Fade Distance to 0.25 and Particle Fallback to Aggressive.
+Forced grass, smoke, or player-effect removal is intentionally not included.
+
+Advanced FOV now ranges from 70 through 120. Values above Apex's normal menu
+range can still be clamped by a future game build. Lower FOV may give a small
+extra FPS gain but narrows your view.
+
+Use RESTORE REGULAR APEX on Easy Setup to undo all applied helper settings and
+clear its launch commands. Your named custom profiles are kept.
+
+Resolution + FPS has grouped resolution presets for 4:3, 5:4,
+16:9, 16:10, 3:2, and ultrawide presets.
+
+On Display, choose No black bars.
+When you click Apply changes, the app automatically forces Fullscreen and
+saves the Apex letterbox commands with your selected width and height. You do not
+need to paste anything into Steam or change your Windows/monitor resolution.
+Choose Black bars to remove the helper-managed stretch commands.
+
+If Windows asks whether to run the file, confirm only if this is the ZIP you
+received from Codex. The app never modifies Apex's installed game files.
