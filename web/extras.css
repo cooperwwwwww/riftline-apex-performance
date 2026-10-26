@@ -452,3 +452,83 @@ input.invalid, .resolution-fields input.invalid { border-color: rgba(255,77,61,.
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Build 24: fluid layout for every window size.
+   The original shell forced a 1024 x 720 minimum, so smaller or snapped windows
+   cut off the right side and the bottom. The shell now fills the window at any
+   size and steps down through tablet- and phone-width layouts. */
+html, body { min-width: 0; min-height: 0; height: 100%; }
+.app-shell { height: 100vh; height: 100dvh; min-height: 0; grid-template-rows: 76px minmax(0, 1fr); }
+.workspace, .sidebar { min-height: 0; }
+.workspace > .page { max-width: 1680px; margin-inline: auto; }
+.page img, .page video { max-width: 100%; }
+.hardware-card, .impact-badge { min-width: 0; }
+.toast { min-width: 0; max-width: calc(100vw - 32px); }
+
+@media (max-width: 1360px) {
+  .topbar { grid-template-columns: auto 1fr auto; gap: 12px; }
+  .preset-strip > span { display: none; }
+  .engine-preview { grid-template-columns: minmax(0, 1.4fr) minmax(220px, .8fr); }
+  .reticle-designer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+@media (max-width: 1080px) {
+  .preset-strip { display: none; }
+  .topbar { grid-template-columns: auto 1fr auto; }
+  .app-shell { grid-template-columns: 196px minmax(0, 1fr); }
+  .workspace { padding: 22px 20px 40px; }
+  .content-grid, .launch-layout, .hero-grid, .engine-preview, .reticle-designer { grid-template-columns: minmax(0, 1fr); }
+  .reticle-controls { border-left: 0; border-top: 1px solid var(--line); }
+  .profile-manager-controls { grid-template-columns: minmax(0, 1fr) auto; }
+  .control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .preset-capture-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .command-library-heading { flex-wrap: wrap; align-items: start; }
+  .command-library-heading input, .command-card input:not([type="checkbox"]) { width: 100%; }
+  [data-tooltip]::before { width: min(320px, calc(100vw - 48px)); }
+}
+
+/* Narrow windows: navigation moves into a scrollable strip under the title bar. */
+@media (max-width: 760px) {
+  .app-shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: 60px auto minmax(0, 1fr); }
+  .topbar { padding: 0 10px 0 12px; gap: 8px; }
+  .brand small, .busy-indicator span { display: none; }
+  .top-actions { gap: 6px; }
+  .top-actions .button { padding-inline: 10px; }
+  .review-button > span { display: none; }
+  .sidebar { grid-column: 1; grid-row: 2; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .search-wrap { flex: 1 1 200px; }
+  .search-wrap kbd { display: none; }
+  .search-results { position: absolute; left: 12px; right: 12px; top: 112px; z-index: 30; }
+  .sidebar nav { order: 3; flex: 1 1 100%; display: flex; gap: 4px; margin: 0; overflow-x: auto; scrollbar-width: none; }
+  .sidebar nav::-webkit-scrollbar { display: none; }
+  .nav-item { flex: 0 0 auto; width: auto; height: 36px; padding: 0 12px; }
+  .nav-item > span { display: none; }
+  .sidebar-footer { margin: 0; padding: 0; }
+  .sidebar-footer .build { display: none; }
+  .workspace { grid-column: 1; grid-row: 3; padding: 18px 14px 32px; }
+  .page-heading { flex-direction: column; align-items: stretch; gap: 14px; }
+  .hero-card { grid-template-columns: minmax(0, 1fr); padding: 22px; }
+  .profile-grid, .control-grid, .advanced-grid, .safety-grid, .two-up, .apex-gallery,
+  .profile-manager-controls, .aspect-compare, .dual-fields { grid-template-columns: minmax(0, 1fr); }
+  .detail-stats, .preset-capture-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .choice-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reticle-picker-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-label { flex-direction: column; align-items: stretch; }
+  .catalog-label select { width: 100%; }
+  .review-drawer { width: 100vw; max-width: 100vw; }
+  .modal-card { width: calc(100vw - 32px); }
+  .toast-stack { left: 16px; right: 16px; }
+}
+
+@media (max-width: 460px) {
+  .brand > span:last-child { display: none; }
+  .window-controls button[data-window="maximize"] { display: none; }
+  .detail-stats, .preset-capture-grid, .choice-row, .segmented.three { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Short windows (snapped to half height, small laptops). */
+@media (max-height: 640px) {
+  .sidebar { padding-top: 12px; }
+  .sidebar nav { margin-top: 10px; }
+  .workspace { padding-top: 16px; }
+}

@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 23.0
+RIFTLINE - APEX PERFORMANCE SUITE 24.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,20 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 24.0
+--------------------
+- Fixed "Failed to fetch" after playing: the fallback window's engine stopped
+  answering once it had been idle (for example while Apex was open), so every
+  button failed after you closed the game. It now stays responsive.
+- Fixed Riftline failing to open a second time while an older window was still
+  running ("could not open a private localhost port").
+- Switching back to Riftline (for example after closing Apex) re-reads the game
+  state: the "Apex is running" warning clears and any settings Apex saved on
+  exit are picked up, so Apply never overwrites them with stale values.
+- Steam/Apex detection retries instead of remembering a failed lookup forever.
+- The window now works at every size, from a narrow snapped window up to 4K;
+  on narrow windows the page list moves to a strip under the title bar.
 
 WHAT CHANGED IN 23.0
 --------------------

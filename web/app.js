@@ -114,7 +114,14 @@ async function api(path, body) {
     options.headers['Content-Type'] = 'application/json';
     options.body = JSON.stringify(body);
   }
-  const response = await fetch(path, options);
+  let response;
+  try { response = await fetch(path, options); }
+  catch {
+    // A sleeping window (e.g. while Apex was open) can drop one request; try once more before giving up.
+    await new Promise(resolve => setTimeout(resolve, 600));
+    try { response = await fetch(path, options); }
+    catch { throw new Error('The Riftline engine stopped running. Close this window and open Riftline again.'); }
+  }
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) throw new Error(data.error || `Request failed (${response.status})`);
   return data;
@@ -1062,8 +1069,32 @@ async function start() {
     resetBaseline();
   }
   setTimeout(() => $('#loadingScreen').classList.add('hidden'), 280);
-  // The browser fallback server shuts itself down after a few idle minutes; keep it alive while open.
-  if (!hasNativeBridge) setInterval(() => api('/api/ping').catch(() => {}), 20000);
+  if (!hasNativeBridge) {
+    setInterval(() => api('/api/ping').catch(() => {}), 20000);
+    // Tell the browser fallback server the window closed. It waits a few seconds so a reload keeps it alive.
+    window.addEventListener('pagehide', () => { try { navigator.sendBeacon(`/api/goodbye?token=${encodeURIComponent(token)}`); } catch {} });
+  }
+  // Returning to Riftline (usually after closing Apex) re-reads the game state, so the
+  // "Apex is running" warning clears and any settings Apex saved on exit are picked up.
+  window.addEventListener('focus', refreshFromGame);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshFromGame(); });
+}
+
+let lastGameRefresh = 0;
+async function refreshFromGame() {
+  if (busy || Date.now() - lastGameRefresh < 4000) return;
+  lastGameRefresh = Date.now();
+  try {
+    if (!appState) { hydrate(await api('/api/state')); return; }
+    const live = await api('/api/live');
+    if (busy) return;
+    if (pendingChanges().length) setConnection(live);
+    else applyLiveState(live);
+    appState = { ...appState, apexRunning: live.apexRunning, configExists: live.configExists };
+  } catch (error) {
+    $('.connection').classList.add('offline');
+    $('#connectionText').textContent = 'Engine connection failed';
+  }
 }
 
 start();

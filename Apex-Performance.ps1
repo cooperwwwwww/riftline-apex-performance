@@ -755,7 +755,8 @@ function Get-SteamManifestPath {
         $candidate = Join-Path (Join-Path $library 'steamapps') 'appmanifest_1172470.acf'
         if (Test-Path -LiteralPath $candidate) { $manifest = $candidate; break }
     }
-    $script:RiftlineSteamCache = [pscustomobject]@{ Manifest = $manifest }
+    # Only cache a hit: Steam or a library drive may appear while the window stays open.
+    if ($manifest) { $script:RiftlineSteamCache = [pscustomobject]@{ Manifest = $manifest } }
     return $manifest
 }
 
@@ -1383,7 +1384,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 23
+        version = 24
     }
 }
 
@@ -1516,19 +1517,23 @@ function Show-WebLauncher {
     $indexPath = Join-Path $webRoot 'index.html'
     if (-not (Test-Path -LiteralPath $indexPath)) { throw "Riftline web files are missing: $webRoot" }
 
-    $listener = New-Object System.Net.HttpListener
+    # A failed Start() disposes the HttpListener, so every port gets a fresh one.
+    # Without this, one busy port (e.g. an older Riftline window) blocked every retry.
+    $listener = $null
     $port = 17317
     while ($port -lt 17347) {
+        $candidate = New-Object System.Net.HttpListener
         try {
-            $listener.Prefixes.Clear()
-            $listener.Prefixes.Add("http://127.0.0.1:$port/")
-            $listener.Start()
+            $candidate.Prefixes.Add("http://127.0.0.1:$port/")
+            $candidate.Start()
+            $listener = $candidate
             break
         } catch {
+            try { $candidate.Close() } catch { }
             $port++
-            if ($port -ge 17347) { throw 'Riftline could not open a private localhost port.' }
         }
     }
+    if ($null -eq $listener) { throw 'Riftline could not open a private localhost port.' }
 
     $token = [Guid]::NewGuid().ToString('N')
     $running = $true
@@ -1582,17 +1587,26 @@ function Show-WebLauncher {
         Start-Process $url
     }
 
+    # The window pings every 20 s, but browsers freeze background windows while a
+    # fullscreen game runs. Stopping after a few idle minutes made every action fail
+    # with "Failed to fetch" once Apex was closed, so the server now stays up until
+    # the window says goodbye, with a long idle limit only as a leak guard.
+    $goodbyeAt = $null
+    $pending = $null
     try {
         while ($running -and $listener.IsListening) {
-            $pending = $listener.BeginGetContext($null, $null)
-            if (-not $pending.AsyncWaitHandle.WaitOne(10000)) {
-                if (([DateTime]::UtcNow - $lastRequest).TotalMinutes -ge 3) { break }
+            if ($null -eq $pending) { $pending = $listener.BeginGetContext($null, $null) }
+            if (-not $pending.AsyncWaitHandle.WaitOne(2000)) {
+                if (($null -ne $goodbyeAt) -and ([DateTime]::UtcNow -ge $goodbyeAt)) { break }
+                if (([DateTime]::UtcNow - $lastRequest).TotalHours -ge 12) { break }
                 continue
             }
             $context = $listener.EndGetContext($pending)
+            $pending = $null
             $request = $context.Request
             $response = $context.Response
             $lastRequest = [DateTime]::UtcNow
+            $goodbyeAt = $null
             $path = $request.Url.AbsolutePath.ToLowerInvariant()
 
             try {
@@ -1604,7 +1618,13 @@ function Show-WebLauncher {
                         continue
                     }
                     $action = $path.Substring(5)
-                    $body = $(if ($request.HttpMethod -eq 'POST') { Read-WebJson $request } else { [pscustomobject]@{} })
+                    if ($action -eq 'goodbye') {
+                        # Sent when the window closes; a reload cancels it by making a new request.
+                        $goodbyeAt = [DateTime]::UtcNow.AddSeconds(8)
+                        Send-WebJson -Response $response -Value @{ ok = $true }
+                        continue
+                    }
+                    $body =$(if ($request.HttpMethod -eq 'POST') { Read-WebJson $request } else { [pscustomobject]@{} })
                     try {
                         $result = Invoke-RiftlineAction -Action $action -Body $body
                         Send-WebJson -Response $response -Value $result

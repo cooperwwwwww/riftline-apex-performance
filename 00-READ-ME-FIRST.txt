@@ -1,7 +1,8 @@
 RIFTLINE - APEX PERFORMANCE SUITE
 =================================
 
-Version 23 opens on the settings Apex is actually using, so Apply only changes
+Version 24 fixes "Failed to fetch" after closing Apex, works at any window
+size, and re-checks the game when you switch back to it. Version 23 opens on the settings Apex is actually using, so Apply only changes
 what you changed. Review shows every change as old -> new with one-click undo,
 Launch asks before leaving changes unapplied, and Steam is found on any drive.
 It also fixes the texture-budget values, FOV math, and Ragdoll collision switch.
