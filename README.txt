@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 25.0
+RIFTLINE - APEX PERFORMANCE SUITE 26.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,17 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 26.0
+--------------------
+- More launch commands: disable motion blur (+cl_motionblur 0), hide your own
+  tracers (+r_drawtracers_firstperson 0), disable bloom (+mat_disable_bloom 1),
+  reduced gore mode (+cl_is_softened_locale 1), position and speed readout
+  (+cl_showpos 1), and minimize on Alt+Tab (+mat_minimize_on_alt_tab 1).
+- Paste a launch line: paste any Steam launch line (for example one from a
+  guide) and Riftline switches on the matching cards. Commands it does not know
+  go to Additional commands.
+- Quick sets now include the new visual-clarity commands.
 
 WHAT CHANGED IN 25.0
 --------------------

@@ -540,3 +540,11 @@ html, body { min-width: 0; min-height: 0; height: 100%; }
 .command-presets button:hover { border-color: var(--line-strong); background: #1d2734; }
 .command-presets button[data-command-preset="clear"] { color: #ff9b8f; }
 .command-warning { margin: -6px 0 14px; padding: 9px 11px; border: 1px solid rgba(255,190,80,.35); border-radius: 7px; background: rgba(255,190,80,.08); color: #ffd28a; font-size: 10px; line-height: 1.5; }
+.command-import { display: grid; gap: 6px; margin: 0 0 14px; }
+.command-import label { color: var(--muted); font-size: 7px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.command-import > div { display: flex; gap: 6px; }
+.command-import input { flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--line-strong); border-radius: 7px; background: #0b1017; color: #fff; font: 10px Consolas, monospace; outline: 0; }
+.command-import input:focus { border-color: rgba(255,104,84,.62); }
+.command-import button { padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: #192330; color: #dce4ed; font-size: 10px; font-weight: 800; cursor: pointer; }
+.command-import button:hover { border-color: var(--line-strong); background: #202c3b; }
+.command-import small { color: var(--muted); font-size: 9px; line-height: 1.5; }

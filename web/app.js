@@ -11,7 +11,7 @@ const hasNativeBridge = Boolean(window.chrome?.webview);
    The baseline is a snapshot of every control as it reflects the files Apex is
    using right now. Pending changes are computed by comparing against it, so
    changing a value back removes it from Review automatically. */
-const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
+const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','commandImport','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
 const SEGMENTS = ['aspect','window','aa'];
 const LABEL_OVERRIDES = {
   width: 'Output width', height: 'Output height', 'segment:aspect': 'Screen shape', 'segment:window': 'Window mode', 'segment:aa': 'Anti-aliasing',
@@ -19,6 +19,8 @@ const LABEL_OVERRIDES = {
   renderScale: 'Minimum render scale', extraCommands: 'Additional launch commands', execConfig: 'Custom CFG file', lodScale: 'Geometry LOD scale',
   refreshRate: 'Refresh rate', dx12: 'DirectX 12 renderer', rawInput: 'Raw mouse input', preload: 'Preload map assets',
   multicore: 'Multicore rendering', threads: 'Worker threads', softParticlesOff: 'Disable soft particles',
+  noMotionBlur: 'Disable motion blur', noTracers: 'Hide your own tracers', noBloom: 'Disable bloom', softenedLocale: 'Reduced gore mode',
+  showPos: 'Position and speed readout', minimizeAltTab: 'Minimize on Alt+Tab',
   fadeScale: 'Object fade distance', mapDetailLevel: 'Map detail level', decalLimit: 'Decal limit', particleFallback: 'Particle fallback', viewFov: 'Field of view'
 };
 const PAGE_NAMES = { overview: 'Overview', display: 'Display', visuals: 'Visuals', advanced: 'Advanced', launch: 'Launch', safety: 'Safety' };
@@ -376,6 +378,7 @@ function hydrateLaunchOptions(launchOptions = '') {
   setControl('highPriority', false); setControl('developerMode', false);
   setControl('refreshRate', ''); setControl('dx12', false); setControl('rawInput', false); setControl('preload', false);
   setControl('multicore', false); setControl('threads', ''); setControl('softParticlesOff', false);
+  Object.keys(TOGGLE_COMMANDS).forEach(id => setControl(id, false));
   setControl('fpsCap', ''); setControl('fpsCounter', 'Off'); setControl('lobbyFps', 'Keep current'); setControl('execConfig', ''); setControl('language', 'System default');
   take(/\s+\+fps_max\s+(\d+)/ig, (_all, value) => setControl('fpsCap', value));
   take(/\s+-novid\b/ig, () => setControl('skipIntro', true));
@@ -394,6 +397,10 @@ function hydrateLaunchOptions(launchOptions = '') {
   take(/\s+\+mat_queue_mode\s+2\b/ig, () => setControl('multicore', true));
   take(/\s+-threads\s+(\d+)/ig, (_all, value) => setControl('threads', value));
   take(/\s+-softparticlesdefaultoff\b/ig, () => setControl('softParticlesOff', true));
+  Object.entries(TOGGLE_COMMANDS).forEach(([id, command]) => {
+    const [name, value] = command.split(' ');
+    take(new RegExp(`\\s+\\${name}\\s+${value}(?=\\s)`, 'ig'), () => setControl(id, true));
+  });
   take(/\s+\+exec\s+([A-Za-z0-9_.-]+)/ig, (_all, value) => setControl('execConfig', value));
   take(/\s+-(?:language)\s+([A-Za-z_]+)/ig, (_all, value) => setControl('language', value.toLowerCase()));
   take(/\s+\+miles_language\s+([A-Za-z_]+)/ig, (_all, value) => setControl('language', value.toLowerCase()));
@@ -576,12 +583,26 @@ function clampResolutionField(id) {
 }
 
 /* ---------- Command + display ---------- */
+/* Simple on/off console commands: card id -> exact command it adds. */
+const TOGGLE_COMMANDS = {
+  noMotionBlur: '+cl_motionblur 0',
+  noTracers: '+r_drawtracers_firstperson 0',
+  noBloom: '+mat_disable_bloom 1',
+  softenedLocale: '+cl_is_softened_locale 1',
+  showPos: '+cl_showpos 1',
+  minimizeAltTab: '+mat_minimize_on_alt_tab 1'
+};
+
 const COMMAND_PRESETS = {
-  competitive: { fpsCap: '0', lobbyFps: '60', skipIntro: true, forceNoVsync: true, rawInput: true, preload: true, softParticlesOff: false, highPriority: false, multicore: false, threads: '' },
-  lowend: { fpsCap: '144', lobbyFps: '30', skipIntro: true, forceNoVsync: true, rawInput: true, preload: true, softParticlesOff: true, highPriority: false, multicore: true, threads: '' },
-  streamer: { fpsCap: '144', lobbyFps: '60', skipIntro: true, forceNoVsync: false, rawInput: true, preload: true, softParticlesOff: false, highPriority: false, multicore: false, threads: '' },
+  competitive: { fpsCap: '0', lobbyFps: '60', skipIntro: true, forceNoVsync: true, rawInput: true, preload: true, softParticlesOff: false, highPriority: false, multicore: false, threads: '',
+    noMotionBlur: true, noTracers: true, noBloom: false, minimizeAltTab: true },
+  lowend: { fpsCap: '144', lobbyFps: '30', skipIntro: true, forceNoVsync: true, rawInput: true, preload: true, softParticlesOff: true, highPriority: false, multicore: true, threads: '',
+    noMotionBlur: true, noTracers: true, noBloom: true, minimizeAltTab: true },
+  streamer: { fpsCap: '144', lobbyFps: '60', skipIntro: true, forceNoVsync: false, rawInput: true, preload: true, softParticlesOff: false, highPriority: false, multicore: false, threads: '',
+    noMotionBlur: true, noTracers: false, noBloom: false, minimizeAltTab: false },
   clear: { fpsCap: '', lobbyFps: 'Keep current', fpsCounter: 'Off', skipIntro: false, noJoy: false, forceNoVsync: false, highPriority: false, developerMode: false,
-    refreshRate: '', dx12: false, rawInput: false, preload: false, multicore: false, threads: '', softParticlesOff: false, execConfig: '', language: 'System default', extraCommands: '' }
+    refreshRate: '', dx12: false, rawInput: false, preload: false, multicore: false, threads: '', softParticlesOff: false, execConfig: '', language: 'System default', extraCommands: '',
+    noMotionBlur: false, noTracers: false, noBloom: false, softenedLocale: false, showPos: false, minimizeAltTab: false }
 };
 
 function applyCommandPreset(name) {
@@ -594,6 +615,22 @@ function applyCommandPreset(name) {
   updateDisplayPreview();
   scheduleReview();
   showToast(name === 'clear' ? 'Launch commands cleared' : 'Quick set loaded', 'Review the changes, then apply or save them.');
+}
+
+/* Reads a pasted launch line into the cards. The current line goes first, so pasted values win;
+   window and screen-shape commands already chosen on Display are kept unless the paste sets them. */
+function importCommandLine() {
+  const input = $('#commandImport');
+  const pasted = input.value.replace(/[\r\n\0]+/g, ' ').trim();
+  if (!pasted) { input.focus(); return; }
+  const before = buildCommand();
+  hydrateLaunchOptions(`${before} ${pasted}`);
+  // Leave unknown leftovers in Additional commands without repeating them.
+  setControl('extraCommands', [...new Set(getValue('extraCommands').split(/\s+(?=[-+])/))].join(' '));
+  input.value = '';
+  updateDisplayPreview();
+  scheduleReview();
+  showToast('Launch line imported', before === buildCommand() ? 'Those commands were already set.' : 'Review the changes, then apply or save them.');
 }
 
 function buildCommand() {
@@ -614,6 +651,7 @@ function buildCommand() {
   if (getBool('multicore')) parts.push('+mat_queue_mode 2');
   if (getValue('threads')) parts.push(`-threads ${getValue('threads')}`);
   if (getBool('softParticlesOff')) parts.push('-softparticlesdefaultoff');
+  Object.entries(TOGGLE_COMMANDS).forEach(([id, command]) => { if (getBool(id)) parts.push(command); });
   const execConfig = getValue('execConfig').trim();
   if (execConfig && /^[A-Za-z0-9_.-]+$/.test(execConfig)) parts.push(`+exec ${execConfig}`);
   if (getValue('language') && getValue('language') !== 'System default') parts.push(`-language ${getValue('language')}`);
@@ -885,7 +923,7 @@ function bindEvents() {
     updateSettingPreview(group.dataset.segment, button.dataset.value);
   })));
   $$('input,select,textarea').forEach(control => {
-    if (['settingsSearch','launchCommandSearch','customProfileName','customProfiles','configLock'].includes(control.id)) return;
+    if (['settingsSearch','launchCommandSearch','commandImport','customProfileName','customProfiles','configLock'].includes(control.id)) return;
     control.addEventListener('change', () => {
       if (control.id === 'width' || control.id === 'height') clampResolutionField(control.id);
       const previewValue = control.type === 'checkbox' ? control.checked : control.value;
@@ -928,6 +966,8 @@ function bindEvents() {
     });
     $('#commandFilterEmpty')?.toggleAttribute('hidden', visible > 0);
   });
+  $('[data-import-command]')?.addEventListener('click', importCommandLine);
+  $('#commandImport')?.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); importCommandLine(); } });
   $$('[data-command-preset]').forEach(button => button.addEventListener('click', () => applyCommandPreset(button.dataset.commandPreset)));
   $('#execConfig')?.addEventListener('input', event => {
     const valid = !event.target.value || /^[A-Za-z0-9_.-]+$/.test(event.target.value);
