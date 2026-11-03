@@ -850,6 +850,17 @@ function Normalize-RiftlineLaunchOptions {
     # legacy Miles override avoids loading a pack while Steam is downloading,
     # updating, or switching it, which can crash Apex during engine startup.
     $normalized = [regex]::Replace($normalized, '(?i)\s+\+miles_language\s+[A-Za-z_]+', ' ')
+    # Apex is DX12-only since the October 2026 season and the old anti-cheat
+    # launcher settings file is gone, so the DX12 switch no longer applies.
+    $normalized = [regex]::Replace($normalized, '(?i)\s+-eac_launcher_settings\s+SettingsDX12\.json(?=\s)', ' ')
+    # The same season removed mat_letterbox_aspect_threshold and made
+    # mat_letterbox_aspect_min 1.59 letterbox every 4:3 resolution. Upgrade old
+    # stretch commands so saved profiles keep filling the screen.
+    if ($normalized -match '(?i)\s\+mat_letterbox_aspect_threshold\s') {
+        $normalized = [regex]::Replace($normalized, '(?i)\s+\+mat_letterbox_aspect_threshold\s+[^\s]+', ' ')
+        if ($normalized -notmatch '(?i)\s\+mat_letterbox_aspect_min\s') { $normalized = [regex]::Replace($normalized, '(?i)\s\+mat_letterbox_aspect_goal\s', ' +mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal ') }
+        if ($normalized -notmatch '(?i)\s\+mat_no_stretching\s') { $normalized = [regex]::Replace($normalized, '(?i)(\+mat_letterbox_aspect_goal\s+[^\s]+)', '$1 +mat_no_stretching 0') }
+    }
     $normalized = [regex]::Replace($normalized, '(?i)\s+-language\s+([A-Za-z_]+)', {
         param($match)
         $language = $match.Groups[1].Value.ToLowerInvariant()
@@ -1001,7 +1012,7 @@ function Get-NoBlackBarsLaunchArguments {
     if (($Width -lt 640) -or ($Width -gt 7680) -or ($Height -lt 360) -or ($Height -gt 4320)) {
         throw 'Choose a valid resolution before enabling stretched mode.'
     }
-    return "+mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0 +building_cubemaps `"1`" -w $Width -h $Height -fullscreen -multiple"
+    return "+mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0 +building_cubemaps `"1`" -w $Width -h $Height -fullscreen -multiple"
 }
 
 function Set-LetterboxLaunchMode {
@@ -1014,6 +1025,7 @@ function Set-LetterboxLaunchMode {
     # Remove every helper-managed stretched-resolution argument before applying
     # the selected mode. Repeated changes therefore never create duplicates.
     $launchOptions = [regex]::Replace(" $launchOptions ", '(?i)\s+\+mat_letterbox_aspect_(?:min|goal|threshold|max)\s+[^\s]+', ' ')
+    $launchOptions = [regex]::Replace(" $launchOptions ", '(?i)\s+\+mat_no_stretching\s+[^\s]+', ' ')
     $launchOptions = [regex]::Replace(" $launchOptions ", '(?i)\s+\+building_cubemaps\s+(?:"[^"]*"|[^\s]+)', ' ')
     $launchOptions = [regex]::Replace(" $launchOptions ", '(?i)\s+-(?:w|h)\s+\d+', ' ')
     $launchOptions = [regex]::Replace(" $launchOptions ", '(?i)\s+-(?:fullscreen|multiple)\b', ' ')
@@ -1078,7 +1090,7 @@ function Invoke-Build23SelfTest {
     if ((ConvertTo-TextureBudgetTier -Value '3 GB') -ne 'Medium' -or (ConvertTo-TextureBudgetTier -Value 'insane') -ne 'Insane') { throw 'Self-test failed: texture budget tier mapping.' }
 
     # The full apply path through the shared dispatcher, then read the live files back.
-    $body = ConvertFrom-Json -InputObject '{"width":1440,"height":1080,"windowMode":"Borderless","aspectMode":"stretched","textureBudget":"Very High","textureQuality":"Low","anisotropic":"8x","antiAliasing":"TSAA","modelDetail":"Medium","particleDetail":"Medium","shadows":true,"effects":false,"ambientOcclusion":true,"mapDecorations":true,"decals":true,"ragdolls":false,"vsync":false,"adaptiveTarget":144,"renderScaleFloor":70,"lowLatency":"On","gibs":false,"ragdollCollision":true,"linearMipFiltering":true,"dynamicTextureBudget":true,"backbufferCount":1,"shadowDepthMin":256,"shadowUpresFactor":1,"maxDynamicShadows":2,"csmResolution":512,"shadowCoverage":2,"ssaoQuality":4,"ssaoDownsample":true,"lodScale":"0.80","fadeDistanceScale":"0.70","mapDetailLevel":2,"decalLimit":128,"particleFallback":"Balanced","viewFov":"104","customReticle":true,"reticleRed":10,"reticleGreen":20,"reticleBlue":30,"launchOptions":"+fps_max 165 -novid +mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0 +building_cubemaps \"1\" -w 1440 -h 1080 -fullscreen -multiple"}'
+    $body = ConvertFrom-Json -InputObject '{"width":1440,"height":1080,"windowMode":"Borderless","aspectMode":"stretched","textureBudget":"Very High","textureQuality":"Low","anisotropic":"8x","antiAliasing":"TSAA","modelDetail":"Medium","particleDetail":"Medium","shadows":true,"effects":false,"ambientOcclusion":true,"mapDecorations":true,"decals":true,"ragdolls":false,"vsync":false,"adaptiveTarget":144,"renderScaleFloor":70,"lowLatency":"On","gibs":false,"ragdollCollision":true,"linearMipFiltering":true,"dynamicTextureBudget":true,"backbufferCount":1,"shadowDepthMin":256,"shadowUpresFactor":1,"maxDynamicShadows":2,"csmResolution":512,"shadowCoverage":2,"ssaoQuality":4,"ssaoDownsample":true,"lodScale":"0.80","fadeDistanceScale":"0.70","mapDetailLevel":2,"decalLimit":128,"particleFallback":"Balanced","viewFov":"104","customReticle":true,"reticleRed":10,"reticleGreen":20,"reticleBlue":30,"launchOptions":"+fps_max 165 -novid +mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0 +building_cubemaps \"1\" -w 1440 -h 1080 -fullscreen -multiple"}'
     $result = Invoke-RiftlineAction -Action 'apply' -Body $body
     if (-not $result.ok -or -not $result.live.current) { throw 'Self-test failed: apply did not return the refreshed live state.' }
     $c = $result.live.current
@@ -1189,13 +1201,15 @@ function Invoke-SelfTest {
     if ((Get-SavedLaunchOptions) -match 'miles_language') { throw 'Self-test failed: an unavailable voice pack command was not removed.' }
     if (((Get-ActiveProfile).type -ne 'custom') -or ((Get-ActiveProfile).name -ne 'Self Test') -or ([string]$loadedProfile.AspectMode -ne 'stretched')) { throw 'Self-test failed: custom active profile or Display state was not remembered.' }
     $stretchedOptions = Set-LetterboxLaunchMode -NoBlackBars $true -Width 2304 -Height 1728
-    $expectedStretch = '+fps_max 120 -novid -language french +mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0 +building_cubemaps "1" -w 2304 -h 1728 -fullscreen -multiple'
+    $expectedStretch = '+fps_max 120 -novid -language french +mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0 +building_cubemaps "1" -w 2304 -h 1728 -fullscreen -multiple'
     if (($stretchedOptions -ne $expectedStretch) -or ((Get-SavedLaunchOptions) -ne $stretchedOptions)) { throw 'Self-test failed: fullscreen no-black-bars launch commands were not added.' }
     $blackBarsOptions = Set-LetterboxLaunchMode -NoBlackBars $false
     if (($blackBarsOptions -ne '+fps_max 120 -novid -language french') -or ((Get-SavedLaunchOptions) -match 'mat_letterbox')) { throw 'Self-test failed: letterbox launch overrides were not removed.' }
-    Save-LaunchOptions -LaunchOptions '+fps_max 120 +mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0 +building_cubemaps "1" -w 2304 -h 1728 -fullscreen -multiple'
+    Save-LaunchOptions -LaunchOptions '+fps_max 120 +mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0 +building_cubemaps "1" -w 2304 -h 1728 -fullscreen -multiple'
     $legacyCleanedOptions = Set-LetterboxLaunchMode -NoBlackBars $false
     if ($legacyCleanedOptions -ne '+fps_max 120') { throw 'Self-test failed: legacy letterbox overrides were not removed.' }
+    Save-LaunchOptions -LaunchOptions '+fps_max 120 -eac_launcher_settings SettingsDX12.json +mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0 +building_cubemaps "1" -w 2304 -h 1728 -fullscreen -multiple'
+    if ((Get-SavedLaunchOptions) -ne '+fps_max 120 +mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0 +building_cubemaps "1" -w 2304 -h 1728 -fullscreen -multiple') { throw 'Self-test failed: pre-season stretch commands were not upgraded.' }
     Save-LaunchOptions -LaunchOptions '+fps_max 120 -novid'
     if ((Get-VideoConfigValues -Path $path)['setting.cl_gib_allow'] -ne '1') { throw 'Self-test failed: custom profile expert settings were not applied.' }
     if ((Get-VideoConfigValues -Path $path)['setting.r_lod_switch_scale'] -ne '0.350000') { throw 'Self-test failed: custom profile distance setting was not applied.' }
@@ -1393,7 +1407,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 26
+        version = 27
     }
 }
 
@@ -2348,7 +2362,7 @@ MORE RESOLUTIONS + ASPECT RATIOS
 Opens grouped presets for 16:9, 16:10, 4:3, 5:4, 3:2, 21:9, 32:10, and 32:9. The list includes 2304x1728. The picker fills Resolution + FPS; press Apply These Settings to write it.
 
 BLACK BARS / STRETCHED
-GAME-SIDE STRETCHED automatically saves the chosen Apex width and height with +mat_letterbox_aspect_goal 0, +mat_letterbox_aspect_threshold 0, +building_cubemaps "1", -fullscreen, and -multiple. It does not change the Windows desktop resolution, monitor menu, or GPU control panel. GAME DEFAULT removes those helper-managed overrides.
+GAME-SIDE STRETCHED automatically saves the chosen Apex width and height with +mat_letterbox_aspect_min 0, +mat_letterbox_aspect_goal 0, +mat_no_stretching 0, +building_cubemaps "1", -fullscreen, and -multiple. It does not change the Windows desktop resolution, monitor menu, or GPU control panel. GAME DEFAULT removes those helper-managed overrides.
 
 TEXTURE BUDGET
 Keep this below available GPU memory. None reduces memory use but can increase texture pop-in. 3 GB is a safe performance starting point; a card with 8 GB or more can usually use 4-6 GB.
@@ -2734,7 +2748,7 @@ Fullscreen can temporarily switch the display mode only while Apex is open. Wind
         if ($scalingGuide.Text -ne 'HOW GAME-SIDE STRETCHING WORKS') { throw 'GUI scaling-guide button test failed.' }
         $noBlackBars.Checked = $true
         $generatedStretch = Get-UiLaunchOptions
-        if (($generatedStretch -notmatch '\+mat_letterbox_aspect_goal 0') -or ($generatedStretch -notmatch '\+mat_letterbox_aspect_threshold 0') -or ($generatedStretch -notmatch '\+building_cubemaps "1"') -or ($generatedStretch -notmatch '-w \d+ -h \d+ -fullscreen -multiple')) { throw 'GUI no-black-bars launch-option test failed.' }
+        if (($generatedStretch -notmatch '\+mat_letterbox_aspect_goal 0') -or ($generatedStretch -notmatch '\+mat_letterbox_aspect_min 0') -or ($generatedStretch -notmatch '\+building_cubemaps "1"') -or ($generatedStretch -notmatch '-w \d+ -h \d+ -fullscreen -multiple')) { throw 'GUI no-black-bars launch-option test failed.' }
         if ($env:APEX_HELPER_PRESET_TEST -eq '1') {
             $clickMethod = $hiddenBest.GetType().GetMethod('OnClick', [System.Reflection.BindingFlags]'Instance, NonPublic')
             [void]$clickMethod.Invoke($hiddenBest, @([System.EventArgs]::Empty))

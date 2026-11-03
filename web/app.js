@@ -408,8 +408,9 @@ function hydrateLaunchOptions(launchOptions = '') {
     const percent = `${Math.round(Number(value) * 100)}%`;
     if ([...$('#renderScale').options].some(option => option.value === percent)) setControl('renderScale', percent);
   });
-  const stretched = /\+mat_letterbox_aspect_(?:goal|threshold)\b/i.test(text);
+  const stretched = /\+mat_letterbox_aspect_(?:min|goal|threshold)\b/i.test(text);
   take(/\s+\+mat_letterbox_aspect_(?:min|goal|threshold|max)\s+[^\s]+/ig);
+  take(/\s+\+mat_no_stretching\s+[^\s]+/ig);
   take(/\s+\+building_cubemaps\s+(?:"[^"]*"|[^\s]+)/ig);
   take(/\s+-(?:w|h)\s+\d+/ig);
   take(/\s+-multiple\b/ig);
@@ -645,7 +646,6 @@ function buildCommand() {
   if (getBool('highPriority')) parts.push('-high');
   if (getBool('developerMode')) parts.push('-dev');
   if (getValue('refreshRate')) parts.push(`-refresh ${getValue('refreshRate')}`);
-  if (getBool('dx12')) parts.push('-eac_launcher_settings SettingsDX12.json');
   if (getBool('rawInput')) parts.push('+m_rawinput 1');
   if (getBool('preload')) parts.push('-preload +cl_forcepreload 1');
   if (getBool('multicore')) parts.push('+mat_queue_mode 2');
@@ -656,7 +656,7 @@ function buildCommand() {
   if (execConfig && /^[A-Za-z0-9_.-]+$/.test(execConfig)) parts.push(`+exec ${execConfig}`);
   if (getValue('language') && getValue('language') !== 'System default') parts.push(`-language ${getValue('language')}`);
   if (selected('aspect') === 'stretched' && resolutionValid()) {
-    parts.push(`+mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0 +building_cubemaps "1" -w ${getValue('width')} -h ${getValue('height')} -fullscreen -multiple`);
+    parts.push(`+mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0 +building_cubemaps "1" -w ${getValue('width')} -h ${getValue('height')} -fullscreen -multiple`);
   } else if (selected('window') === 'Fullscreen') {
     parts.push('-fullscreen');
   } else if (selected('window') === 'Borderless') {

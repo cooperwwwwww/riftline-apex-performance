@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 26.0
+RIFTLINE - APEX PERFORMANCE SUITE 27.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,18 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 27.0
+--------------------
+- Fixed black bars on stretched resolutions after the October 2026 Apex
+  season. Apex removed mat_letterbox_aspect_threshold and now letterboxes any
+  screen shape narrower than 1.59 (every 4:3 resolution) by default. Stretched
+  mode now sends +mat_letterbox_aspect_min 0 and +mat_no_stretching 0 instead.
+- Saved launch commands and profiles from older builds are upgraded
+  automatically the next time they are saved or launched.
+- Removed the DirectX 12 launch option. Apex now ships only the DX12 game and
+  the old anti-cheat settings file it pointed to no longer exists; the flag is
+  stripped from saved commands.
 
 WHAT CHANGED IN 26.0
 --------------------
@@ -192,7 +204,7 @@ WHAT CHANGED IN 17.0
 - Resolution + FPS now follows three visible steps: choose resolution,
   choose screen shape, then choose picture quality and Apply These Settings.
 - Game-side stretched — no black bars automatically forces Fullscreen and saves:
-  +mat_letterbox_aspect_goal 0 +mat_letterbox_aspect_threshold 0
+  +mat_letterbox_aspect_min 0 +mat_letterbox_aspect_goal 0 +mat_no_stretching 0
   +building_cubemaps "1" -w WIDTH -h HEIGHT -fullscreen -multiple
 - WIDTH and HEIGHT always come from the resolution selected in the app. You do
   not need to paste launch commands into Steam.
