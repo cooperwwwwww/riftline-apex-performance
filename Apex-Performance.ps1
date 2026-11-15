@@ -1551,7 +1551,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 28
+        version = 29
     }
 }
 

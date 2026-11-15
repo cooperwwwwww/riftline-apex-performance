@@ -175,3 +175,15 @@
 }
 
 [data-pane][hidden] { display: none !important; }
+
+/* ---------- Resolution presets and ratio builder ---------- */
+.choice-row { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+.ratio-builder { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-top: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(10, 14, 20, .6); }
+.ratio-builder > span { flex: 1 0 100%; color: var(--faint); font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.ratio-builder label { display: grid; gap: 5px; color: var(--muted); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.ratio-builder input { width: 70px; padding: 9px 10px; background: #0a0e14; border: 1px solid var(--line-strong); border-radius: 8px; color: #f5f7fa; outline: 0; }
+.ratio-builder label:nth-of-type(3) input { width: 92px; }
+.ratio-builder input:focus { border-color: rgba(98, 184, 255, .55); }
+.ratio-builder b { padding-bottom: 9px; color: var(--faint); }
+.ratio-builder button { flex: 1 0 auto; height: 38px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 8px; background: #1a2433; color: #e6ebf0; font-size: 12px; font-weight: 750; cursor: pointer; }
+.ratio-builder button:hover { border-color: var(--red); }

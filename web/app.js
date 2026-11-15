@@ -11,7 +11,7 @@ const hasNativeBridge = Boolean(window.chrome?.webview);
    The baseline is a snapshot of every control as it reflects the files Apex is
    using right now. Pending changes are computed by comparing against it, so
    changing a value back removes it from Review automatically. */
-const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
+const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','ratioW','ratioH','ratioHeight','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
 const SEGMENTS = ['aspect','window','aa'];
 const LABEL_OVERRIDES = {
   width: 'Output width', height: 'Output height', 'segment:aspect': 'Screen shape', 'segment:window': 'Window mode', 'segment:aa': 'Anti-aliasing',
@@ -923,7 +923,7 @@ function bindEvents() {
     updateSettingPreview(group.dataset.segment, button.dataset.value);
   })));
   $$('input,select,textarea').forEach(control => {
-    if (['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','customProfileName','customProfiles','configLock'].includes(control.id)) return;
+    if (['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','ratioW','ratioH','ratioHeight','customProfileName','customProfiles','configLock'].includes(control.id)) return;
     control.addEventListener('change', () => {
       if (control.id === 'width' || control.id === 'height') clampResolutionField(control.id);
       const previewValue = control.type === 'checkbox' ? control.checked : control.value;
@@ -936,9 +936,24 @@ function bindEvents() {
     if (control.tagName === 'TEXTAREA' || control.type === 'number' || control.id === 'execConfig') control.addEventListener('input', updateDisplayPreview);
   });
   $$('[data-resolution]').forEach(button => button.addEventListener('click', () => {
-    const [width,height] = button.dataset.resolution === 'native' ? [appState?.native?.width || 1920, appState?.native?.height || 1080] : button.dataset.resolution.split('x').map(Number);
+    const nativeHeight = appState?.native?.height || 1080;
+    const [width,height] = button.dataset.resolution === 'native' ? [appState?.native?.width || 1920, nativeHeight]
+      : button.dataset.resolution === 'square' ? [Math.max(640, nativeHeight), Math.max(640, nativeHeight)]
+      : button.dataset.resolution.split('x').map(Number);
     setControl('width',width); setControl('height',height); updateDisplayPreview();
   }));
+  $('[data-ratio-build]')?.addEventListener('click', () => {
+    const ratioW = Number(getValue('ratioW')), ratioH = Number(getValue('ratioH'));
+    let height = Math.round(Number(getValue('ratioHeight')));
+    if (!(ratioW > 0) || !(ratioH > 0) || !(height > 0)) { showToast('Enter a ratio and height', 'For example 1 : 1 at 1440, or 4 : 3 at 1080.', 'error'); return; }
+    // Even dimensions keep GPUs and scalers happy; clamp to what Apex accepts.
+    let width = Math.round(height * ratioW / ratioH / 2) * 2;
+    if (width > RESOLUTION_LIMITS.width[1]) { width = RESOLUTION_LIMITS.width[1]; height = Math.round(width * ratioH / ratioW / 2) * 2; }
+    if (width < RESOLUTION_LIMITS.width[0]) { width = RESOLUTION_LIMITS.width[0]; height = Math.round(width * ratioH / ratioW / 2) * 2; }
+    height = Math.min(RESOLUTION_LIMITS.height[1], Math.max(RESOLUTION_LIMITS.height[0], height));
+    setControl('width', width); setControl('height', height); updateDisplayPreview();
+    showToast(`Resolution set to ${width} × ${height}`, `${ratioW} : ${ratioH} ratio. Review and press Apply changes to save it.`);
+  });
   $('#resolutionCatalog')?.addEventListener('change', event => {
     if (!event.target.value) return;
     const [width, height] = event.target.value.split('x').map(Number);
@@ -1145,6 +1160,14 @@ function hydrate(state) {
   const languageStatus = $('#languageStatus');
   if (languageStatus) languageStatus.textContent = `Steam language: ${state.steamLanguage || 'unknown'} · Installed voice: ${voiceLanguages.length ? voiceLanguages.join(', ') : 'none detected'}`;
   if (!state.current) { setControl('width', state.native.width); setControl('height', state.native.height); }
+  setControl('ratioHeight', state.native.height);
+  // Point out the presets that use the monitor's full height: the sharpest choice for that shape.
+  $$('#resolutionCatalog option').forEach(option => {
+    const [width, height] = option.value.split('x').map(Number);
+    if (!width) return;
+    option.value = `${width}x${height}`; // pin the value before the visible label changes
+    option.textContent = `${width} × ${height}${height === state.native.height ? (width === state.native.width ? '  · your native' : '  · full height of your screen') : ''}`;
+  });
   applyLiveState(state);
   if (state.apexRunning) showToast('Apex is running', 'Close Apex completely before applying changes.', 'error');
 }

@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 28.0
+RIFTLINE - APEX PERFORMANCE SUITE 29.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,17 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 29.0
+--------------------
+- Added 1:1 square resolutions, from 720x720 up to 2160x2160, plus a
+  Square 1:1 button that picks the largest square that fills your monitor's
+  height (1440x1440 on a 1440p screen).
+- The resolution list now has 14 aspect ratios and 93 presets: 1:1, 5:4, 4:3,
+  3:2, 16:10, 5:3, 16:9, 17:9, 2:1, 21:9, 24:10, 32:10, 32:9 and 48:9 triple
+  monitor. Presets that use your screen's full height are marked.
+- New Any aspect ratio builder: type a ratio and a height and Riftline works
+  out the width (rounded to an even number, within Apex's limits).
 
 WHAT CHANGED IN 28.0
 --------------------
