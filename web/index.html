@@ -7,6 +7,7 @@
   <title>Riftline</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="extras.css">
+  <link rel="stylesheet" href="theme.css">
 </head>
 <body>
   <div class="app-shell">
@@ -23,6 +24,7 @@
       </div>
       <div class="busy-indicator" id="busyIndicator" aria-live="polite"><i></i><span id="busyLabel">Working…</span></div>
       <div class="top-actions">
+        <button class="explain-toggle" id="explainToggle" aria-pressed="true" title="Show or hide a plain-language explanation under every setting"><span>Explain</span><b>On</b></button>
         <button class="review-button" data-open-review><span>Review</span><b id="reviewCount">0</b></button>
         <button class="button button-primary" data-apply>Apply changes</button>
         <button class="button button-dark" data-launch>Launch Apex</button>
@@ -43,11 +45,16 @@
         <button class="nav-item" data-page="visuals"><span>03</span>Visuals</button>
         <button class="nav-item" data-page="advanced"><span>04</span>Advanced</button>
         <button class="nav-item" data-page="launch"><span>05</span>Launch</button>
-        <button class="nav-item" data-page="safety"><span>06</span>Safety</button>
+        <button class="nav-item" data-page="pccheck"><span>06</span>PC Check</button>
+        <button class="nav-item" data-page="safety"><span>07</span>Safety</button>
       </nav>
       <div class="sidebar-footer">
+        <div class="load-estimate" id="loadEstimate" title="A rough guide from the settings you have chosen, not a measurement. Lower means more FPS.">
+          <span class="load-label">Graphics load<b id="loadGraphicsText">—</b></span><i class="load-bar"><i id="loadGraphicsBar"></i></i>
+          <span class="load-label">Pixels drawn<b id="loadPixelsText">—</b></span><i class="load-bar"><i id="loadPixelsBar"></i></i>
+        </div>
         <div class="connection"><i></i><span id="connectionText">Connecting to Apex…</span></div>
-        <div class="build">RIFTLINE <span>BUILD 27 · OFFLINE NATIVE</span></div>
+        <div class="build">RIFTLINE <span>BUILD 28 · OFFLINE NATIVE</span></div>
       </div>
     </aside>
 
@@ -244,12 +251,20 @@
         </div>
       </section>
 
+      <section class="page" data-page-panel="pccheck">
+        <div class="page-heading compact"><div><p class="eyebrow">Windows and hardware</p><h1>PC Check</h1><p>Riftline looks at the Windows settings that most often cost Apex players FPS or add input lag. It only reads them; each fix opens the right Windows Settings page so you stay in control.</p></div><div class="pc-check-actions"><span class="pc-summary" id="pcCheckSummary" data-state="">Not checked yet</span><button class="button button-primary" data-pc-check>Run check again</button></div></div>
+        <div class="pc-check-list" id="pcCheckList"><div class="pc-loading">Open this page to check your PC.</div></div>
+      </section>
+
       <section class="page" data-page-panel="safety">
         <div class="page-heading compact"><div><p class="eyebrow">Backups and recovery</p><h1>Safety</h1><p>See exactly where Riftline writes, lock the result, or return to regular Apex.</p></div><div class="safe-badge">Reversible by design</div></div>
         <div class="safety-grid">
           <article class="path-card"><span>Apex config folder</span><strong id="configPath">Detecting…</strong><small id="configStatus">Checking connection</small></article>
           <article class="path-card"><span>Steam installation</span><strong id="steamPath">Detecting…</strong><small id="steamStatus">Checking launcher</small></article>
           <article class="setting-card toggle-card wide"><div><h3>Lock video config after changes</h3><p>Riftline temporarily unlocks the file to apply changes, then restores the lock.</p></div><label class="switch"><input id="configLock" type="checkbox"><span></span></label></article>
+          <article class="share-card wide"><div><span>Share or move your setup</span><h3>Setup codes</h3><p>Copy a code that holds every Riftline setting on screen, then paste it into Riftline on another PC or send it to a friend. Loading a code only fills in the settings; you still review and press Apply changes.</p></div>
+            <textarea id="setupCodeBox" rows="3" spellcheck="false" placeholder="Paste a RIFT1- setup code here" aria-label="Setup code"></textarea>
+            <div class="share-actions"><button class="button button-dark" data-copy-setup>Copy my setup code</button><button class="button button-primary" data-load-setup>Load pasted code</button></div></article>
           <article class="safety-action primary"><div><span>Newest backup</span><h3>Undo the most recent change</h3><p>Restores the newest video, latency, and FOV backups.</p></div><button data-action="restore-latest">Restore newest backup</button></article>
           <article class="safety-action"><div><span>Original baseline</span><h3>Return to regular Apex</h3><p>Restores the earliest pre-Riftline files and clears app-managed launch commands.</p></div><button data-action="restore-regular">Restore original files</button></article>
           <article class="safety-action warning"><div><span>Troubleshooting</span><h3>Clear the PSO shader cache</h3><p>Use only for corrupted shaders or update-related visual problems.</p></div><button data-action="clear-cache">Clear shader cache</button></article>
@@ -263,5 +278,6 @@
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
   <div class="loading-screen" id="loadingScreen"><div class="loading-brand"><span>R</span><strong>RIFTLINE</strong><small>Starting the offline performance engine</small><i></i></div></div>
   <script src="app.js"></script>
+  <script src="guide.js"></script>
 </body>
 </html>

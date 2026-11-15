@@ -11,7 +11,7 @@ const hasNativeBridge = Boolean(window.chrome?.webview);
    The baseline is a snapshot of every control as it reflects the files Apex is
    using right now. Pending changes are computed by comparing against it, so
    changing a value back removes it from Review automatically. */
-const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','commandImport','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
+const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
 const SEGMENTS = ['aspect','window','aa'];
 const LABEL_OVERRIDES = {
   width: 'Output width', height: 'Output height', 'segment:aspect': 'Screen shape', 'segment:window': 'Window mode', 'segment:aa': 'Anti-aliasing',
@@ -923,7 +923,7 @@ function bindEvents() {
     updateSettingPreview(group.dataset.segment, button.dataset.value);
   })));
   $$('input,select,textarea').forEach(control => {
-    if (['settingsSearch','launchCommandSearch','commandImport','customProfileName','customProfiles','configLock'].includes(control.id)) return;
+    if (['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','customProfileName','customProfiles','configLock'].includes(control.id)) return;
     control.addEventListener('change', () => {
       if (control.id === 'width' || control.id === 'height') clampResolutionField(control.id);
       const previewValue = control.type === 'checkbox' ? control.checked : control.value;

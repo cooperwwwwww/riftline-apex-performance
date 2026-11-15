@@ -278,6 +278,150 @@ function Get-MonitorRefreshRate {
     return 0
 }
 
+function Get-RegistryValueOrNull {
+    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Name)
+    try { return (Get-ItemProperty -LiteralPath $Path -Name $Name -ErrorAction Stop).$Name } catch { return $null }
+}
+
+# Read-only Windows checks for the PC Check page. Nothing here changes the system;
+# each warning links to the matching Windows Settings page instead.
+function Get-RiftlinePcCheck {
+    $checks = New-Object System.Collections.Generic.List[object]
+    $add = {
+        param($Id, $Title, $Status, $Value, $Detail, $Fix, $Open, $OpenLabel)
+        $checks.Add([pscustomobject]@{ id = $Id; title = $Title; status = $Status; value = $Value; detail = $Detail; fix = $Fix; open = $Open; openLabel = $OpenLabel })
+    }
+
+    $video = @()
+    try { $video = @(Get-CimInstance Win32_VideoController -ErrorAction Stop | Where-Object { $_.CurrentHorizontalResolution }) } catch { }
+
+    # Monitor running below its maximum refresh rate is the most common free win.
+    foreach ($adapter in $video) {
+        $current = [int]$adapter.CurrentRefreshRate; $max = [int]$adapter.MaxRefreshRate
+        if ($current -lt 24) { continue }
+        if ($max -gt $current + 1 -and $max -le 1000) {
+            & $add 'refresh' 'Monitor refresh rate' 'warn' "$current Hz of $max Hz" "Windows is running your display at $current Hz, but it supports up to $max Hz. Apex can never show more than $current frames a second on screen this way." 'Settings › Display › Advanced display › Choose a refresh rate, then pick the highest number.' 'display-advanced' 'Open display settings'
+        } else {
+            & $add 'refresh' 'Monitor refresh rate' 'good' "$current Hz" "Your display is running at its highest reported refresh rate." '' '' ''
+        }
+        break
+    }
+
+    # GPU driver age.
+    foreach ($adapter in $video) {
+        if (-not $adapter.DriverDate) { continue }
+        $age = [int]((Get-Date) - [datetime]$adapter.DriverDate).TotalDays
+        $name = [string]$adapter.Name
+        $date = ([datetime]$adapter.DriverDate).ToString('d MMM yyyy')
+        if ($age -gt 180) {
+            & $add 'driver' 'Graphics driver' 'warn' "$date" "Your $name driver is about $([math]::Round($age / 30)) months old. New Apex seasons often ship with driver fixes for stutters and crashes." 'Update it with NVIDIA App, AMD Software or Intel Arc Control, or from your GPU maker''s website.' '' ''
+        } else {
+            & $add 'driver' 'Graphics driver' 'good' "$date" "Your $name driver is recent." '' '' ''
+        }
+        break
+    }
+
+    # Game Mode: missing value means Windows' default, which is on.
+    $gameMode = Get-RegistryValueOrNull -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled'
+    if ($null -ne $gameMode -and [int]$gameMode -eq 0) {
+        & $add 'gamemode' 'Windows Game Mode' 'warn' 'Off' 'Game Mode stops Windows Update and background apps from grabbing CPU time while you play.' 'Turn Game Mode on.' 'gaming-gamemode' 'Open Game Mode'
+    } else {
+        & $add 'gamemode' 'Windows Game Mode' 'good' 'On' 'Windows gives Apex priority over background work while it runs.' '' '' ''
+    }
+
+    # Background recording (Game Bar captures) records the last minutes all the time.
+    $dvr = Get-RegistryValueOrNull -Path 'HKCU:\System\GameConfigStore' -Name 'GameDVR_Enabled'
+    $capture = Get-RegistryValueOrNull -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' -Name 'HistoricalCaptureEnabled'
+    if (($null -ne $capture -and [int]$capture -eq 1)) {
+        & $add 'capture' 'Background recording' 'warn' 'Recording' 'Windows is constantly recording the last few minutes of gameplay. That costs GPU encoder time and disk writes.' 'Turn off "Record what happened" unless you use it.' 'gaming-captures' 'Open capture settings'
+    } elseif ($null -ne $dvr -and [int]$dvr -eq 0) {
+        & $add 'capture' 'Background recording' 'good' 'Off' 'Game Bar recording is turned off.' '' '' ''
+    } else {
+        & $add 'capture' 'Background recording' 'good' 'Not recording' 'Windows is not recording gameplay in the background.' '' '' ''
+    }
+
+    # Hardware-accelerated GPU scheduling.
+    $hags = Get-RegistryValueOrNull -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' -Name 'HwSchMode'
+    if ($null -ne $hags) {
+        $on = ([int]$hags -eq 2)
+        & $add 'hags' 'Hardware-accelerated GPU scheduling' 'info' $(if ($on) { 'On' } else { 'Off' }) 'Lets the graphics card manage its own memory queue. It can lower latency slightly on recent GPUs; results vary, so test both if you get stutters.' '' 'display-advancedgraphics' 'Open graphics settings'
+    }
+
+    # Power plan.
+    try {
+        $scheme = (& powercfg.exe /getactivescheme) -join ' '
+        $planName = if ($scheme -match '\(([^)]+)\)') { $Matches[1] } else { 'Unknown' }
+        if ($scheme -match 'a1841308-3541-4fab-bc81-f71556f20b4a') {
+            & $add 'power' 'Power plan' 'warn' $planName 'Power saver caps your CPU speed, which causes low FPS and stutters in Apex.' 'Switch the power mode to Best performance (or Balanced).' 'powersleep' 'Open power settings'
+        } else {
+            & $add 'power' 'Power plan' 'good' $planName 'Your power plan lets the CPU run at full speed.' '' '' ''
+        }
+    } catch { }
+
+    # Mouse acceleration ("Enhance pointer precision").
+    $mouseSpeed = Get-RegistryValueOrNull -Path 'HKCU:\Control Panel\Mouse' -Name 'MouseSpeed'
+    if ($null -ne $mouseSpeed) {
+        if ([string]$mouseSpeed -ne '0') {
+            & $add 'mouse' 'Mouse acceleration' 'warn' 'On' 'Enhance pointer precision makes the cursor move further when you move the mouse faster. With raw input on, Apex ignores it, but your desktop and in-game aim will feel different.' 'Turn on Raw mouse input in Launch, or untick Enhance pointer precision in additional mouse settings.' 'mousetouchpad' 'Open mouse settings'
+        } else {
+            & $add 'mouse' 'Mouse acceleration' 'good' 'Off' 'Mouse movement is one-to-one, so aim is consistent.' '' '' ''
+        }
+    }
+
+    # Memory.
+    try {
+        $ramGb = [math]::Round(((Get-CimInstance Win32_ComputerSystem -ErrorAction Stop).TotalPhysicalMemory) / 1GB)
+        if ($ramGb -lt 12) {
+            & $add 'ram' 'System memory' 'warn' "$ramGb GB" "Apex recommends 16 GB. With $ramGb GB, close browsers and Discord overlays while playing, and leave Preload map assets off." '' '' ''
+        } else {
+            & $add 'ram' 'System memory' 'good' "$ramGb GB" 'Enough memory for Apex and a few background apps.' '' '' ''
+        }
+    } catch { }
+
+    # Drive Apex is installed on: free space and SSD vs HDD.
+    $install = Get-ApexInstallFolder
+    if ($install) {
+        $letter = ([System.IO.Path]::GetPathRoot($install)).TrimEnd('\').TrimEnd(':')
+        try {
+            $drive = Get-PSDrive -Name $letter -PSProvider FileSystem -ErrorAction Stop
+            $freeGb = [math]::Round($drive.Free / 1GB)
+            if ($freeGb -lt 25) {
+                & $add 'disk' 'Free space on the Apex drive' 'warn' "$freeGb GB free" 'Apex updates need room to download and unpack. Low space makes updates fail and can slow loading.' 'Free up at least 30 GB on this drive.' 'storagesense' 'Open storage settings'
+            } else {
+                & $add 'disk' 'Free space on the Apex drive' 'good' "$freeGb GB free" "Drive ${letter}: has room for the next season update." '' '' ''
+            }
+        } catch { }
+        try {
+            $diskNumber = (Get-Partition -DriveLetter $letter -ErrorAction Stop | Select-Object -First 1).DiskNumber
+            $media = [string](Get-PhysicalDisk -ErrorAction Stop | Where-Object { [string]$_.DeviceId -eq [string]$diskNumber } | Select-Object -First 1).MediaType
+            if ($media -eq 'HDD') {
+                & $add 'ssd' 'Apex install drive' 'warn' 'Hard drive' 'Apex is on a spinning hard drive. Expect long loading, texture pop-in and stutters when dropping.' 'Move Apex to an SSD with Steam › Properties › Installed Files › Move install folder.' '' ''
+            } elseif ($media -eq 'SSD') {
+                & $add 'ssd' 'Apex install drive' 'good' 'SSD' 'Apex is on a solid-state drive, so maps and textures load quickly.' '' '' ''
+            }
+        } catch { }
+    }
+
+    # Fullscreen optimizations flag set on the Apex executable.
+    if ($install) {
+        $exe = Join-Path $install 'r5apex_dx12.exe'
+        $layers = Get-RegistryValueOrNull -Path 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers' -Name $exe
+        if ($layers -and ([string]$layers -match 'DISABLEDXMAXIMIZEDWINDOWEDMODE')) {
+            & $add 'fso' 'Fullscreen optimizations' 'info' 'Disabled for Apex' 'Fullscreen optimizations are turned off for Apex. Some players prefer this; if Alt+Tab is slow or the screen flickers, turn them back on in the exe''s Properties › Compatibility tab.' '' '' ''
+        }
+    }
+
+    return [pscustomobject]@{ ok = $true; checks = $checks.ToArray() }
+}
+
+function Open-RiftlineWindowsSetting {
+    param([Parameter(Mandatory)][string]$Target)
+    # Only these Settings pages can be opened, so the UI can never launch anything else.
+    $allowed = @('display-advanced', 'display-advancedgraphics', 'gaming-gamemode', 'gaming-captures', 'powersleep', 'mousetouchpad', 'storagesense')
+    if ($allowed -notcontains $Target) { throw 'That Windows setting cannot be opened from Riftline.' }
+    Start-Process "ms-settings:$Target"
+}
+
 function Get-CommonLowValues {
     return @{
         'setting.cl_gib_allow' = '0'
@@ -1407,7 +1551,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 27
+        version = 28
     }
 }
 
@@ -1512,6 +1656,8 @@ function Invoke-RiftlineAction {
         'restore-latest' { Restore-LatestBackup; return (Add-RiftlineLiveState @{ message = 'The newest backups were restored.' }) }
         'restore-regular' { Restore-RegularApex; return (Add-RiftlineLiveState @{ message = 'The original Apex baseline was restored.' }) }
         'clear-cache' { Clear-ApexPsoCache; return [pscustomobject]@{ ok = $true; message = 'The PSO shader cache was cleared.' } }
+        'pc-check' { return (Get-RiftlinePcCheck) }
+        'open-windows-setting' { Open-RiftlineWindowsSetting -Target ([string]$Body.target); return [pscustomobject]@{ ok = $true } }
         'shutdown' { return [pscustomobject]@{ ok = $true } }
         default { throw "Unknown Riftline action: $Action" }
     }
@@ -1666,6 +1812,8 @@ function Show-WebLauncher {
                     '/styles.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'styles.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/extras.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'extras.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/app.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'app.js'))) -ContentType 'application/javascript; charset=utf-8' }
+                    '/guide.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'guide.js'))) -ContentType 'application/javascript; charset=utf-8' }
+                    '/theme.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'theme.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/arena.png' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'assets\riftline-arena.png'))) -ContentType 'image/png' }
                     '/app-icon.png' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'assets\app-icon.png'))) -ContentType 'image/png' }
                     '/favicon.ico' { Send-WebText -Response $response -Text '' -StatusCode 204 }

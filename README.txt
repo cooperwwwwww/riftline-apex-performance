@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 27.0
+RIFTLINE - APEX PERFORMANCE SUITE 28.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,27 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 28.0
+--------------------
+- Every setting now explains itself. Explain mode (top bar, on by default)
+  shows a plain-language description, FPS cost, visual impact and the
+  competitive pick under each setting.
+- New setting guide: press the ? next to any setting for a full panel with a
+  real Apex capture (where one exists) you can flip between values, an
+  illustration of what changes, FPS-cost and visual-change meters, and a
+  Use recommended button.
+- New PC Check page: reads the Windows settings that most often cost FPS or
+  add input lag (refresh rate, driver age, Game Mode, background recording,
+  power plan, mouse acceleration, RAM, free space, SSD). It only reads them;
+  each fix opens the matching Windows Settings page.
+- New setup codes on the Safety page: copy every setting as a RIFT1- code and
+  load it on another PC or share it. Loading only fills the settings in; you
+  still review and apply.
+- New load estimate in the sidebar: a rough graphics-load and pixel-count
+  gauge that updates as you change settings.
+- Refreshed look: larger, easier-to-read text, new navigation icons, and
+  cleaner cards.
 
 WHAT CHANGED IN 27.0
 --------------------
