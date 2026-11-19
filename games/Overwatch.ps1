@@ -24,7 +24,8 @@ $script:OverwatchKeys = [ordered]@{
     'LightQuality'            = @{ Section = 'Render.13'; Allowed = @('0', '1', '2', '3') }
     'AADetail'                = @{ Section = 'Render.13'; Allowed = @('0', '1', '2', '3') }
     'MaxAnisotropy'           = @{ Section = 'Render.13'; Allowed = @('1', '2', '4', '8', '16') }
-    'DirectionalShadowDetail' = @{ Section = 'Render.13'; Allowed = @('0') }                           # only "off" is written
+    # Overwatch resets 0 to Medium when it saves, so the lowest real level is 1 (Low).
+    'DirectionalShadowDetail' = @{ Section = 'Render.13'; Allowed = @('1', '2', '3', '4') }
     'SimpleDirectionalShadows' = @{ Section = 'Render.13'; Allowed = @('0', '1') }
     'TranslucentShadowDetail' = @{ Section = 'Render.13'; Allowed = @('0') }
     'SSAOEnabled'             = @{ Section = 'Render.13'; Allowed = @('0', '1') }

@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 34.0
+RIFTLINE - APEX PERFORMANCE SUITE 35.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,12 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 35.0
+--------------------
+- Fixed Overwatch sun shadows. Overwatch resets a shadow level of 0 to Medium
+  when it saves, so the lowest real level is 1 (Low). Sun shadows now offer
+  Low, Medium, High and Ultra, and Most FPS uses Low.
 
 WHAT CHANGED IN 34.0
 --------------------
