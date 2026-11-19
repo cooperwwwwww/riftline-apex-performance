@@ -32,7 +32,8 @@ $script:OverwatchKeys = [ordered]@{
     'SSLRDetailLevel'         = @{ Section = 'Render.13'; Allowed = @('0') }
     'RefractionDetail'        = @{ Section = 'Render.13'; Allowed = @('0', '1') }
     'DynamicAmbient'          = @{ Section = 'Render.13'; Allowed = @('0', '1') }
-    'LocalFogDetail'          = @{ Section = 'Render.13'; Allowed = @('0', '1') }
+    # Overwatch saves fog as 1-3 (Low-High); it resets anything else to High, so 0 is not offered.
+    'LocalFogDetail'          = @{ Section = 'Render.13'; Allowed = @('1', '2', '3') }
     'ShowIntro'               = @{ Section = 'Cinematics.1'; Allowed = @('0', '1') }
     # Volumes are stored as percentages with six decimals, e.g. "70.000000".
     'MasterVolume'            = @{ Section = 'Sound.3'; Pattern = '^(\d{1,2}|100)\.000000$' }

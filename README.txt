@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 33.0
+RIFTLINE - APEX PERFORMANCE SUITE 34.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,16 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 34.0
+--------------------
+- Fixed Overwatch fog. Overwatch stores Local fog detail as 1-3 (Low to High)
+  and resets any other value to High, so Riftline's old Off (0) choice made fog
+  heavier, not lighter. The setting now offers Low, Medium and High, and Most
+  FPS uses Low.
+- Confirmed from a file Overwatch itself rewrote: model, lighting,
+  anti-aliasing, filtering, ambient occlusion, reflections, refraction and
+  dynamic ambient settings written by Riftline are kept by the game.
 
 WHAT CHANGED IN 33.0
 --------------------

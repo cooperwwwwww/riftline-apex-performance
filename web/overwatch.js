@@ -199,9 +199,9 @@ async function restoreOverwatch(which) {
 }
 
 const OW_PRESETS = {
-  fps: { WindowMode: '0', FrameRateCap: '600', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '1', ModelQuality: '1', LightQuality: '0', AADetail: '0', MaxAnisotropy: '1', DirectionalShadowDetail: '0', SimpleDirectionalShadows: '1', TranslucentShadowDetail: '0', SSAOEnabled: '0', LocalReflections: '0', SSLRDetailLevel: '0', RefractionDetail: '0', DynamicAmbient: '0', LocalFogDetail: '0' },
-  balanced: { WindowMode: '0', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '3', ModelQuality: '2', LightQuality: '1', AADetail: '1', MaxAnisotropy: '8', SSAOEnabled: '0', LocalReflections: '0', RefractionDetail: '1', DynamicAmbient: '1', LocalFogDetail: '1' },
-  quality: { WindowMode: '0', CpuForceSyncEnabled: '0', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', TextureDetail: '4', ModelQuality: '4', LightQuality: '3', AADetail: '3', MaxAnisotropy: '16', SimpleDirectionalShadows: '0', SSAOEnabled: '1', LocalReflections: '1', RefractionDetail: '1', DynamicAmbient: '1', LocalFogDetail: '1' }
+  fps: { WindowMode: '0', FrameRateCap: '600', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '1', ModelQuality: '1', LightQuality: '0', AADetail: '0', MaxAnisotropy: '1', DirectionalShadowDetail: '0', SimpleDirectionalShadows: '1', TranslucentShadowDetail: '0', SSAOEnabled: '0', LocalReflections: '0', SSLRDetailLevel: '0', RefractionDetail: '0', DynamicAmbient: '0', LocalFogDetail: '1' },
+  balanced: { WindowMode: '0', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '3', ModelQuality: '2', LightQuality: '1', AADetail: '1', MaxAnisotropy: '8', SSAOEnabled: '0', LocalReflections: '0', RefractionDetail: '1', DynamicAmbient: '1', LocalFogDetail: '2' },
+  quality: { WindowMode: '0', CpuForceSyncEnabled: '0', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', TextureDetail: '4', ModelQuality: '4', LightQuality: '3', AADetail: '3', MaxAnisotropy: '16', SimpleDirectionalShadows: '0', SSAOEnabled: '1', LocalReflections: '1', RefractionDetail: '1', DynamicAmbient: '1', LocalFogDetail: '3' }
 };
 function applyOwPreset(name) {
   const preset = OW_PRESETS[name];

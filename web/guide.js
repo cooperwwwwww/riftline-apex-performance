@@ -105,7 +105,7 @@ const GUIDE = {
   owSFXVolume: { title: 'Sound effects', what: 'Footsteps, abilities and gunfire: the sounds that tell you where enemies are.', fps: 0, look: 0, comp: '100%.', rec: '100.000000', art: 'hud', labels: ['Low', 'High'] },
   owMusicVolume: { title: 'Music', what: 'Menu and match music. It can drown out footsteps and ability cues.', fps: 0, look: 0, comp: 'Off (0%).', rec: '0.000000', art: 'hud', labels: ['Off', 'Loud'] },
   owVoiceChatVolume: { title: 'Voice chat', what: 'How loud your teammates are.', fps: 0, look: 0, comp: 'Whatever keeps callouts clear without covering footsteps.', art: 'hud', labels: ['Low', 'High'] },
-  owLocalFogDetail: { title: 'Local fog detail', what: 'Fog and haze effects around the map. Turning it off clears the view slightly and saves a little FPS.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'fog', labels: ['Off', 'On'] }
+  owLocalFogDetail: { title: 'Local fog detail', what: 'Fog and haze effects around the map. Low clears the view slightly and saves a little FPS. Overwatch has no Off level; anything below Low is reset to High.', fps: 1, look: 1, comp: 'Low.', rec: '1', art: 'fog', labels: ['High', 'Low'] }
 };
 
 const LEVEL = ['None', 'Low', 'Medium', 'High'];
