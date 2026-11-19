@@ -267,3 +267,20 @@ body[data-family="unreal"] .game-switch button.active { background: linear-gradi
 .ow-raw td { padding: 5px 8px; border-top: 1px solid var(--line); color: #b8c2ce; word-break: break-all; }
 .ow-raw tr.managed td { color: #ffcf85; }
 .ue-lock { display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; }
+
+/* ---------- Tabs inside long pages ---------- */
+.page:not(.tabs-searching) .tab-hidden { display: none !important; }
+.subtabs { position: sticky; top: -30px; z-index: 6; display: flex; gap: 4px; margin: 0 0 18px; padding: 5px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: rgba(10, 14, 20, .92); backdrop-filter: blur(14px); scrollbar-width: none; }
+.subtabs::-webkit-scrollbar { display: none; }
+.subtabs button { display: inline-flex; flex: 1 0 auto; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 750; white-space: nowrap; cursor: pointer; transition: background .18s, color .18s; }
+.subtabs button:hover { background: rgba(255, 255, 255, .04); color: #fff; }
+.subtabs button.active { background: #223044; color: #fff; box-shadow: inset 0 -2px 0 var(--red); }
+body[data-family="overwatch"] .subtabs button.active { box-shadow: inset 0 -2px 0 #f99e1a; }
+body[data-family="unreal"] .subtabs button.active { box-shadow: inset 0 -2px 0 #7c5cff; }
+.subtabs button:focus-visible { outline: 2px solid var(--info); outline-offset: 1px; }
+.subtab-count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 10px; }
+.subtab-count[hidden] { display: none; }
+.page.tabs-searching .subtabs { opacity: .45; pointer-events: none; }
+.subtabs + .ow-groups .ow-group > header > span { display: none; }
+.subtabs + .ow-groups .ow-group > header:not(:has(small)) { display: none; }
+@media (max-width: 760px) { .subtabs { top: -24px; } .subtabs button { flex: 0 0 auto; padding: 0 12px; } }

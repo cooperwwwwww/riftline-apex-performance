@@ -68,18 +68,20 @@ let busy = false;
 function visibleFields() { return FIELDS.filter(field => !field.embark || state?.embark); }
 
 function render() {
+  const ingame = ingameCard();
   const groups = {};
   visibleFields().forEach(field => { (groups[field.group] ||= []).push(field); });
   $('#ueGroups').innerHTML = Object.entries(groups).map(([group, fields]) => `
     <section class="ow-group"><header><span>${escapeHtml(group)}</span>${group === 'Clarity and latency' ? '<small>Options marked “Only Off” can be switched off here; turn them on in the game menu.</small>' : ''}</header><div class="settings-list two-up">
       ${fields.map(field => `<article class="setting-card ow-card" data-search="${escapeHtml(`${state?.name || ''} ${field.title} ${field.key}`)}"><div class="setting-title"><div><h3>${escapeHtml(field.title)}</h3><p>${escapeHtml(field.desc)}</p><span class="ow-now" data-ue-now="${escapeHtml(field.key)}"></span></div>
         <select id="${idFor(field.key)}" data-ue-key="${escapeHtml(field.key)}"><option value="">Leave as is</option>${field.options.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join('')}</select></div></article>`).join('')}
-    </div></section>`).join('') + ingameCard();
+    </div></section>`).join('') + (ingame ? `<section class="ow-group"><header><span>Set in game</span></header>${ingame}</section>` : '');
   // Explanations and ? buttons come from the shared setting guide.
   visibleFields().forEach(field => {
     riftlineGuide.GUIDE[idFor(field.key)] = { title: field.title, what: field.what, fps: field.fps, look: field.look, comp: field.comp, rec: field.rec, art: field.art, labels: field.labels };
   });
   riftlineGuide.decorateCards?.();
+  window.riftlineTabs?.build('unreal');
 }
 
 function ingameCard() {

@@ -1557,7 +1557,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 31
+        version = 32
     }
 }
 
@@ -1833,6 +1833,7 @@ function Show-WebLauncher {
                     '/extras.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'extras.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/app.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'app.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/guide.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'guide.js'))) -ContentType 'application/javascript; charset=utf-8' }
+                    '/tabs.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'tabs.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/games.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'games.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/overwatch.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'overwatch.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/theme.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'theme.css'))) -ContentType 'text/css; charset=utf-8' }

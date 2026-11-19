@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 31.0
+RIFTLINE - APEX PERFORMANCE SUITE 32.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,19 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 32.0
+--------------------
+- Long pages are split into tabs so only one section shows at a time:
+  Visuals (Detail, Lighting & effects, Smoothness & latency), Advanced
+  (Textures & memory, Shadows & AO, Distance & view), Launch (Frame rate,
+  Input & latency, Performance, Clarity, Reticle, Startup & expert),
+  Overwatch 2 (Display & FPS, Input lag, Graphics, Audio, Tools) and the
+  Unreal game page (Display & FPS, Graphics, Clarity, Set in game).
+- Each tab shows a badge with how many unsaved changes it holds, and Riftline
+  remembers the last tab you used on each page.
+- Search, Review and the setting guide open the right tab automatically, and
+  the Launch filter searches every tab at once. Arrow keys move between tabs.
 
 WHAT CHANGED IN 31.0
 --------------------
