@@ -1,33 +1,53 @@
-/* Riftline build 30 — game switcher, Overwatch 2 settings page and Games library.
-   Loaded after app.js and guide.js and uses their helpers ($, $$, api, askUser, showToast, ...). */
+/* Riftline build 31 — game switcher, Overwatch 2 settings page and Games library.
+   Loaded after app.js and guide.js and uses their helpers ($, $$, api, askUser, showToast, ...).
+   games.js registers the Unreal Engine games it finds through riftlineGames.register. */
 (() => {
 'use strict';
 
-const GAMES = { apex: { name: 'Apex Legends', home: 'overview' }, overwatch: { name: 'Overwatch 2', home: 'overwatch' } };
+// family decides which pages show: every page and button carries data-game="<family>".
+const GAMES = {
+  apex: { name: 'Apex Legends', home: 'overview', family: 'apex' },
+  overwatch: { name: 'Overwatch 2', home: 'overwatch', family: 'overwatch' }
+};
 let activeGame = 'apex';
 let owState = null;
 let owBusy = false;
+// A saved Unreal game is selected once games.js has found and registered it.
+let savedGame = 'apex';
+try { savedGame = localStorage.getItem('riftline.game') || 'apex'; } catch {}
 
 /* ---------- Game switcher ---------- */
 function setGame(game, { openHome = true } = {}) {
   if (!GAMES[game]) game = 'apex';
   activeGame = game;
+  const def = GAMES[game];
   document.body.dataset.activeGame = game;
+  document.body.dataset.family = def.family;
   $$('[data-switch-game]').forEach(button => {
     const on = button.dataset.switchGame === game;
     button.classList.toggle('active', on); button.setAttribute('aria-checked', String(on));
   });
   try { localStorage.setItem('riftline.game', game); } catch {}
-  if (openHome) originalOpenPage(GAMES[game].home);
+  def.onSelect?.(game);
+  if (openHome) originalOpenPage(def.home);
   if (game === 'overwatch' && !owState) loadOverwatch();
 }
 
-// Opening a page that belongs to the other game (from search, links or the guide) switches game first.
+function register(id, def) {
+  if (GAMES[id]) return;
+  GAMES[id] = def;
+  const button = document.createElement('button');
+  button.dataset.switchGame = id; button.setAttribute('role', 'radio'); button.textContent = def.name;
+  $('#gameSwitch')?.appendChild(button);
+  if (savedGame === id) setGame(id);
+}
+
+// Opening a page that belongs to another game (from search, links or the guide) switches game first.
 const originalOpenPage = window.openPage;
 window.openPage = function openPageForGame(name) {
   const page = $(`.page[data-page-panel="${CSS.escape(name)}"]`);
   const owner = page?.dataset.game;
-  if (owner && owner !== activeGame) setGame(owner, { openHome: false });
+  if (owner && owner !== GAMES[activeGame]?.family && GAMES[owner]) setGame(owner, { openHome: false });
   if (name === 'games') loadGames();
   return originalOpenPage(name);
 };
@@ -44,12 +64,14 @@ function owControls() { return $$('[data-ow-key]'); }
 
 function nowLabel(key, values) {
   if (key === 'Resolution') return values.FullScreenWidth && values.FullScreenHeight ? `${values.FullScreenWidth} × ${values.FullScreenHeight}` : '';
+  if (key === 'FrameRateCap' && values.LimitToRefresh === '1' && values.UseCustomFrameRates !== '1') return 'Match refresh rate';
   const value = values[key];
   if (value === undefined) return '';
   const control = $(`#ow${key}`);
   const option = control && [...control.options].find(item => item.value === value);
   if (option) return option.textContent;
   if (key === 'FrameRateCap') return `${value} FPS`;
+  if (/Volume$/.test(key)) return `${Math.round(Number(value))}%`;
   if (key === 'FullScreenRefresh') return `${value} Hz`;
   if (/Shadow|SSLR/.test(key)) return value === '0' ? 'Off' : `Level ${value}`;
   return value;
@@ -58,6 +80,7 @@ function nowLabel(key, values) {
 function currentOf(key) {
   const values = owState?.values || {};
   if (key === 'Resolution') return values.FullScreenWidth && values.FullScreenHeight ? `${values.FullScreenWidth}x${values.FullScreenHeight}` : '';
+  if (key === 'FrameRateCap' && values.LimitToRefresh === '1' && values.UseCustomFrameRates !== '1') return 'refresh';
   return values[key] ?? '';
 }
 
@@ -87,6 +110,14 @@ function fillOverwatch() {
   $('#owPath').textContent = owState?.settingsPath || '—';
   $('#owBackups').textContent = owState?.backups ? `${owState.backups} backup${owState.backups === 1 ? '' : 's'} saved · Riftline keeps the newest 25` : (owState?.hasOriginal ? 'Original saved' : 'A backup is made before the first change');
   renderAlert();
+  const lock = $('#owLock');
+  if (lock) { lock.checked = Boolean(owState?.readOnly); lock.disabled = !owState?.settingsExists; }
+  const cache = $('#owCacheSize');
+  if (cache) cache.textContent = owState?.cacheMb ? `Current cache: ${owState.cacheMb} MB.` : 'The cache is empty right now.';
+  const raw = $('#owRaw');
+  if (raw) raw.innerHTML = (owState?.everything || []).length
+    ? `<table><thead><tr><th>Section</th><th>Setting</th><th>Value</th></tr></thead><tbody>${owState.everything.map(row => `<tr class="${row.managed ? 'managed' : ''}"><td>${escapeHtml(row.section)}</td><td>${escapeHtml(row.key)}</td><td>${escapeHtml(row.value)}</td></tr>`).join('')}</tbody></table>`
+    : '<p>The file has no settings yet.</p>';
   updateCount();
 }
 
@@ -120,6 +151,7 @@ function owChanges() {
     const key = control.dataset.owKey, value = control.value;
     if (value === '' || value === (control.dataset.current || '')) return;
     if (key === 'Resolution') { const [width, height] = value.split('x'); values.FullScreenWidth = width; values.FullScreenHeight = height; }
+    else if (key === 'FrameRateCap' && value === 'refresh') values.LimitToRefresh = '1';
     else values[key] = value;
   });
   return values;
@@ -189,11 +221,11 @@ async function loadGames(force = false) {
     gamesLoaded = true;
     const games = result.games || [];
     grid.innerHTML = games.length ? games.map(game => `
-      <article class="game-card ${game.tunable ? 'tunable' : ''}">
+      <article class="game-card ${game.tunable && GAMES[game.tunable] ? 'tunable' : ''}">
         <div class="game-art" aria-hidden="true">${escapeHtml(game.name.replace(/[®™]/g, '').split(/\s+/).map(word => word[0]).join('').slice(0, 3).toUpperCase())}</div>
         <div class="game-info"><h3>${escapeHtml(game.name.replace(/[®™]/g, ''))}</h3><p>${game.sizeGb ? `${game.sizeGb} GB on disk` : 'Installed'} · Steam</p>
-          <span class="game-badge">${game.tunable ? 'Tunable in Riftline' : 'Launch only'}</span></div>
-        <div class="game-actions">${game.tunable ? `<button class="button button-primary" data-tune-game="${escapeHtml(game.tunable)}">Tune settings</button>` : ''}<button class="button button-dark" data-launch-game="${escapeHtml(game.appid)}" data-game-name="${escapeHtml(game.name.replace(/[®™]/g, ''))}">Launch</button></div>
+          <span class="game-badge">${game.tunable && GAMES[game.tunable] ? 'Tunable in Riftline' : 'Launch only'}</span></div>
+        <div class="game-actions">${game.tunable && GAMES[game.tunable] ? `<button class="button button-primary" data-tune-game="${escapeHtml(game.tunable)}">Tune settings</button>` : ''}<button class="button button-dark" data-launch-game="${escapeHtml(game.appid)}" data-game-name="${escapeHtml(game.name.replace(/[®™]/g, ''))}">Launch</button></div>
       </article>`).join('') : '<div class="pc-loading">No Steam games were found on this PC.</div>';
   } catch (error) { grid.innerHTML = `<div class="pc-loading error">Could not list your games: ${escapeHtml(error.message)}</div>`; }
 }
@@ -215,6 +247,7 @@ document.addEventListener('click', event => {
   const fix = target.closest('[data-ow-fix]');
   if (fix) { $('#owAlert')._fixes?.[Number(fix.dataset.owFix)]?.(); showToast('Fix loaded', 'Press Apply to save it to Overwatch.'); return; }
   if (target.closest('[data-games-refresh]')) { loadGames(true); return; }
+  if (target.closest('[data-ow-clear-cache]')) { clearOwCache(); return; }
   const tune = target.closest('[data-tune-game]');
   if (tune) { setGame(tune.dataset.tuneGame); return; }
   const launch = target.closest('[data-launch-game]');
@@ -222,11 +255,23 @@ document.addEventListener('click', event => {
     api('/api/launch-game', { appid: launch.dataset.launchGame }).then(() => showToast(`Starting ${launch.dataset.gameName}`, 'Steam is opening the game.')).catch(error => showToast('Could not start that game', error.message, 'error'));
   }
 });
-document.addEventListener('change', event => { if (event.target.matches?.('[data-ow-key]')) updateCount(); });
+document.addEventListener('change', event => {
+  if (event.target.matches?.('[data-ow-key]')) updateCount();
+  if (event.target.id === 'owLock') {
+    const locked = event.target.checked;
+    api('/api/ow-lock', { locked }).then(state => { owState = state; fillOverwatch(); showToast(locked ? 'Overwatch settings locked' : 'Overwatch settings unlocked', locked ? 'Overwatch cannot overwrite them now. Riftline unlocks the file while applying.' : 'Overwatch can save in-game changes again.'); })
+      .catch(error => { event.target.checked = !locked; showToast('Could not change the lock', error.message, 'error'); });
+  }
+});
+
+async function clearOwCache() {
+  const choice = await askUser({ title: 'Clear the Overwatch shader cache?', body: 'Overwatch rebuilds it the next time it starts, so the first match may stutter for a moment. Overwatch must be closed.', confirm: 'Clear cache' });
+  if (choice !== 'confirm') return;
+  try { const result = await api('/api/ow-clear-cache', {}); owState = result.state; fillOverwatch(); showToast('Shader cache cleared', result.message); }
+  catch (error) { showToast('The cache was not cleared', error.message, 'error'); }
+}
 window.addEventListener('focus', () => { if (activeGame === 'overwatch' && !owBusy && Object.keys(owChanges()).length === 0) loadOverwatch(); });
 
-let saved = 'apex';
-try { saved = localStorage.getItem('riftline.game') || 'apex'; } catch {}
-setGame(saved);
-window.riftlineGames = { setGame, loadOverwatch, owChanges };
+setGame(GAMES[savedGame] ? savedGame : 'apex');
+window.riftlineGames = { setGame, register, loadOverwatch, owChanges, get active() { return activeGame; } };
 })();

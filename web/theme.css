@@ -189,13 +189,14 @@
 .ratio-builder button:hover { border-color: var(--red); }
 
 /* ---------- Game switcher: only the active game's pages and buttons show ---------- */
-body[data-active-game="apex"] [data-game="overwatch"],
-body[data-active-game="overwatch"] [data-game="apex"] { display: none !important; }
-.game-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 14px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: rgba(10, 14, 20, .8); }
+body[data-family="apex"] [data-game]:not([data-game="apex"]),
+body[data-family="overwatch"] [data-game]:not([data-game="overwatch"]),
+body[data-family="unreal"] [data-game]:not([data-game="unreal"]) { display: none !important; }
+.game-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin-top: 14px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: rgba(10, 14, 20, .8); }
 .game-switch button { padding: 9px 6px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 750; cursor: pointer; transition: .18s; }
 .game-switch button:hover { color: #fff; }
 .game-switch button.active { background: linear-gradient(135deg, var(--red), #ff6d42); color: #fff; box-shadow: 0 6px 18px rgba(255, 77, 61, .25); }
-body[data-active-game="overwatch"] .game-switch button.active { background: linear-gradient(135deg, #f99e1a, #ffb84d); color: #1a1206; box-shadow: 0 6px 18px rgba(249, 158, 26, .25); }
+body[data-family="overwatch"] .game-switch button.active { background: linear-gradient(135deg, #f99e1a, #ffb84d); color: #1a1206; box-shadow: 0 6px 18px rgba(249, 158, 26, .25); }
 .ow-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-left: 8px; padding: 0 6px; border-radius: 10px; background: rgba(0, 0, 0, .25); font-size: 10px; }
 .ow-count.has-changes { background: #fff; color: #c53b2e; }
 
@@ -242,3 +243,27 @@ body[data-active-game="overwatch"] .game-switch button.active { background: line
   .ow-status { justify-items: start; }
   .ow-alert > div { flex-direction: column; align-items: flex-start; }
 }
+
+body[data-family="unreal"] .game-switch button.active { background: linear-gradient(135deg, #7c5cff, #a98bff); box-shadow: 0 6px 18px rgba(124, 92, 255, .3); }
+.game-switch button { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-item b { font-weight: inherit; }
+
+/* ---------- Overwatch tools, in-game checklist, raw file view ---------- */
+.ow-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.ow-tools .setting-title .button { flex: 0 0 auto; }
+.ow-checklist { margin-top: 14px; padding: 20px; border: 1px solid rgba(98, 184, 255, .22); border-radius: 14px; background: linear-gradient(180deg, rgba(22, 30, 41, .92), rgba(13, 18, 26, .92)); }
+.ow-checklist h3 { margin: 0 0 6px; font-size: 16px; }
+.ow-checklist > p { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
+.ow-checklist ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ow-checklist li { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #0d131b; }
+.ow-checklist li strong { font-size: 13px; }
+.ow-checklist li b { color: var(--good); font-size: 12.5px; }
+.ow-checklist li small { color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.ow-raw { margin-top: 14px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(13, 18, 26, .9); }
+.ow-raw summary { cursor: pointer; font-size: 13px; font-weight: 750; }
+.ow-raw > p { color: var(--muted); font-size: 12px; }
+.ow-raw table { width: 100%; border-collapse: collapse; font: 12px/1.5 Consolas, monospace; }
+.ow-raw th { padding: 6px 8px; color: var(--faint); font: 800 10.5px/1 Inter, "Segoe UI", sans-serif; letter-spacing: .1em; text-align: left; text-transform: uppercase; }
+.ow-raw td { padding: 5px 8px; border-top: 1px solid var(--line); color: #b8c2ce; word-break: break-all; }
+.ow-raw tr.managed td { color: #ffcf85; }
+.ue-lock { display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; }

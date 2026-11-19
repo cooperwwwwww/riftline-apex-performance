@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 30.0
+RIFTLINE - APEX PERFORMANCE SUITE 31.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,30 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 31.0
+--------------------
+- Unreal Engine games. One shared editor works with the standard Unreal
+  GameUserSettings.ini, so Riftline now supports THE FINALS, ARC Raiders,
+  Fortnite, Marvel Rivals, Dead by Daylight, PUBG, Palworld, Satisfactory,
+  Deep Rock Galactic, Squad, Ready or Not and Hell Let Loose. Each game appears
+  in the game switcher as soon as its settings file exists on this PC.
+- Unreal settings: window mode, resolution, frame rate limit (Unlimited or a
+  cap), V-Sync, 3D resolution, dynamic resolution, DirectX 11/12, and view
+  distance, anti-aliasing, shadows, global illumination, reflections,
+  post-processing, textures, effects, foliage and shading. THE FINALS and ARC
+  Raiders also get DLSS frame generation off, motion blur off and lens
+  distortion. Warnings with one-click fixes for frame generation, V-Sync and
+  windowed modes. Lock file, Undo last change and Restore original.
+- Same safety rules as Overwatch: only listed settings and values, backups
+  before every change, no writes while the game runs, other lines untouched.
+- Overwatch 2: new Audio group (master, effects, music, voice chat), a Match my
+  refresh rate frame cap, 600 FPS labelled as the unlimited maximum, a file
+  lock, shader cache clearing, a read-only view of everything in the settings
+  file, and a checklist of competitive settings that live in the game menu.
+- Apex: the lobby FPS cap now has a clear Unlimited (0) option plus 165, 240 and
+  300, and the gameplay cap shows Unlimited (0) and 360.
+- The Games page marks every supported game that is installed as Tunable.
 
 WHAT CHANGED IN 30.0
 --------------------

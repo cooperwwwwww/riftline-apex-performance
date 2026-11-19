@@ -34,6 +34,11 @@ $script:OverwatchKeys = [ordered]@{
     'DynamicAmbient'          = @{ Section = 'Render.13'; Allowed = @('0', '1') }
     'LocalFogDetail'          = @{ Section = 'Render.13'; Allowed = @('0', '1') }
     'ShowIntro'               = @{ Section = 'Cinematics.1'; Allowed = @('0', '1') }
+    # Volumes are stored as percentages with six decimals, e.g. "70.000000".
+    'MasterVolume'            = @{ Section = 'Sound.3'; Pattern = '^(\d{1,2}|100)\.000000$' }
+    'MusicVolume'             = @{ Section = 'Sound.3'; Pattern = '^(\d{1,2}|100)\.000000$' }
+    'SFXVolume'               = @{ Section = 'Sound.3'; Pattern = '^(\d{1,2}|100)\.000000$' }
+    'VoiceChatVolume'         = @{ Section = 'Sound.3'; Pattern = '^(\d{1,2}|100)\.000000$' }
 }
 
 function Get-OverwatchSettingsPath {
@@ -148,7 +153,12 @@ function Get-OverwatchState {
             if ($all.ContainsKey($lookup)) { $values[$key] = $all[$lookup] }
         }
         foreach ($extra in @('WindowedFullscreen', 'WindowedRefresh')) { if ($all.ContainsKey("Render.13|$extra")) { $values[$extra] = $all["Render.13|$extra"] } }
-    }
+        # Every line in the file, for the read-only "Everything in your file" list. GPU IDs are left out.
+        $everything = @($all.Keys | Where-Object { $_ -notmatch '^GPU\.|^environment\.' } | Sort-Object | ForEach-Object {
+            $parts = $_ -split '\|', 2
+            [pscustomobject]@{ section = $parts[0]; key = $parts[1]; value = $all[$_]; managed = $script:OverwatchKeys.Contains($parts[1]) }
+        })
+    } else { $everything = @() }
     $folder = Get-OverwatchBackupFolder
     $backups = if (Test-Path -LiteralPath $folder) { @(Get-ChildItem -LiteralPath $folder -Filter 'Settings_v0-2*.ini').Count } else { 0 }
     $install = Get-OverwatchInstall
@@ -163,7 +173,36 @@ function Get-OverwatchState {
         hasOriginal = (Test-Path -LiteralPath (Join-Path $folder 'Settings_v0-original.ini'))
         launcher = $(if ($install) { $install.launcher } else { '' })
         monitorRefresh = (Get-MonitorRefreshRate)
+        everything = $everything
+        cacheMb = (Get-OverwatchCacheSize)
     }
+}
+
+function Get-OverwatchCacheFile {
+    return (Join-Path (Split-Path -Parent (Split-Path -Parent (Get-OverwatchSettingsPath))) 'Cache\PipelineLibrary\PipelineLibrary.list')
+}
+
+function Get-OverwatchCacheSize {
+    $file = Get-OverwatchCacheFile
+    if (Test-Path -LiteralPath $file) { return [math]::Round((Get-Item -LiteralPath $file).Length / 1MB, 1) }
+    return 0
+}
+
+# Overwatch rebuilds its shader pipeline cache on the next start; clearing it fixes stutter after updates.
+function Clear-OverwatchShaderCache {
+    if (Test-OverwatchRunning) { throw 'Close Overwatch completely before clearing its shader cache.' }
+    $file = Get-OverwatchCacheFile
+    if (-not (Test-Path -LiteralPath $file)) { return [pscustomobject]@{ ok = $true; message = 'The Overwatch shader cache is already empty.' } }
+    Remove-Item -LiteralPath $file -Force
+    return [pscustomobject]@{ ok = $true; message = 'Overwatch shader cache cleared. The first match after this may stutter while it rebuilds.' }
+}
+
+function Set-OverwatchFileLock {
+    param([bool]$Locked)
+    $path = Get-OverwatchSettingsPath
+    if (-not (Test-Path -LiteralPath $path)) { throw 'Overwatch has not created its settings file yet.' }
+    (Get-Item -LiteralPath $path).IsReadOnly = $Locked
+    return [pscustomobject]@{ ok = $true; locked = $Locked }
 }
 
 function Set-OverwatchSettings {
@@ -184,6 +223,7 @@ function Set-OverwatchSettings {
     # Keep the paired keys Overwatch expects in step with the ones the UI sets.
     if ($changes.Contains('WindowMode')) { $changes['WindowedFullscreen'] = $(if ($changes['WindowMode'] -eq '1') { '1' } else { '0' }) }
     if ($changes.Contains('FrameRateCap')) { $changes['UseCustomFrameRates'] = '1'; $changes['LimitToRefresh'] = '0' }
+    elseif ($changes.Contains('LimitToRefresh') -and $changes['LimitToRefresh'] -eq '1') { $changes['UseCustomFrameRates'] = '0' }
     $backup = New-OverwatchBackup -Path $path
     $ini = Read-OverwatchIni -Path $path
     foreach ($key in $changes.Keys) {
@@ -220,6 +260,7 @@ function Start-Overwatch {
 # Installed Steam games for the Games page. Redistributables and tools are left out.
 function Get-RiftlineSteamGames {
     $tunable = @{ '1172470' = 'apex'; '2357570' = 'overwatch' }
+    foreach ($unreal in $script:UnrealGames) { if ($unreal.appid) { $tunable[$unreal.appid] = $unreal.id } }
     $games = [System.Collections.Generic.List[object]]::new()
     $seen = @{}
     foreach ($library in (Get-SteamLibraryFolders)) {
@@ -261,10 +302,10 @@ function Invoke-OverwatchSelfTest {
     try {
         $state = Get-OverwatchState
         if ($state.values['FrameRateCap'] -ne '600' -or $state.values['ShowIntro'] -ne '1') { throw 'Overwatch self-test failed: values were not read.' }
-        $body = [pscustomobject]@{ FrameRateCap = '237'; WindowMode = '0'; ShowIntro = '0'; SSAOEnabled = '0'; GraphicsAPI = 'Dx11' }
+        $body = [pscustomobject]@{ FrameRateCap = '237'; WindowMode = '0'; ShowIntro = '0'; SSAOEnabled = '0'; GraphicsAPI = 'Dx11'; MusicVolume = '0.000000' }
         [void](Set-OverwatchSettings -Values $body)
         $text = [System.IO.File]::ReadAllText($path)
-        foreach ($expected in @('FrameRateCap = "237"', 'WindowMode = "0"', 'WindowedFullscreen = "0"', 'UseCustomFrameRates = "1"', 'LimitToRefresh = "0"', 'ShowIntro = "0"', 'SSAOEnabled = "0"', 'GraphicsAPI = "Dx11"', 'FPSOverlay = "0"')) {
+        foreach ($expected in @('FrameRateCap = "237"', 'WindowMode = "0"', 'WindowedFullscreen = "0"', 'UseCustomFrameRates = "1"', 'LimitToRefresh = "0"', 'ShowIntro = "0"', 'SSAOEnabled = "0"', 'GraphicsAPI = "Dx11"', 'FPSOverlay = "0"', '[Sound.3]', 'MusicVolume = "0.000000"')) {
             if (-not $text.Contains($expected)) { throw "Overwatch self-test failed: '$expected' missing after apply." }
         }
         if ($text -match '(?<!\r)\n') { throw 'Overwatch self-test failed: line endings changed.' }

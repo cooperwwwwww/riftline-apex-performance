@@ -52,7 +52,7 @@ const GUIDE = {
   ragdollCollision: { title: 'Ragdoll collision', what: 'Lets ragdoll bodies collide with each other. Pure cosmetic physics.', fps: 1, look: 0, comp: 'Off.', rec: false, art: 'ragdoll', labels: ['Off', 'On'] },
 
   fpsCap: { title: 'Gameplay FPS cap', what: 'Maximum frames per second during matches. A cap just under your stable FPS gives smoother, more even frame times; 0 means uncapped.', fps: 0, look: 0, comp: 'Your monitor refresh rate, or a few FPS under what your PC holds in fights.', art: 'fps', labels: ['Uncapped: uneven', 'Capped: steady'] },
-  lobbyFps: { title: 'Lobby FPS cap', what: 'Frame limit for menus and the lobby. A low cap keeps your GPU cool and quiet between matches.', fps: 0, look: 0, comp: '60.', art: 'fps', labels: ['Uncapped', 'Capped'] },
+  lobbyFps: { title: 'Lobby FPS cap', what: 'Frame limit for menus and the lobby. Unlimited (0) makes menus as smooth as your PC allows; a low cap keeps your GPU cool and quiet between matches.', fps: 0, look: 0, comp: 'Unlimited for smooth menus, or 60 to keep the GPU cool.', art: 'fps', labels: ['Uncapped', 'Capped'] },
   fpsCounter: { title: 'FPS counter', what: 'Shows Apex’s own frame-rate readout in a corner of the screen.', fps: 0, look: 0, comp: 'Basic, while you tune settings.', art: 'hud', labels: ['Off', 'On'] },
   skipIntro: { title: 'Skip intro video', what: 'Skips the logo videos when Apex starts, so you reach the menu faster.', fps: 0, look: 0, comp: 'On.', rec: true, art: 'intro', labels: ['Off', 'On'] },
   noJoy: { title: 'Disable controller input', what: 'Turns off controller support. Helps if a plugged-in device (wheel, pad, drawing tablet) makes your aim drift or the HUD flip to controller icons.', fps: 0, look: 0, comp: 'On if you only play with mouse and keyboard.', art: 'mouse', labels: ['Off', 'On'] },
@@ -81,7 +81,7 @@ const GUIDE = {
   owWindowMode: { title: 'Display mode', what: 'Fullscreen gives Overwatch the monitor to itself, which has the lowest input lag and lets it use your full refresh rate. Borderless windowed makes Alt+Tab instant but can add a little lag.', fps: 1, look: 0, comp: 'Fullscreen.', rec: '0', art: 'window', labels: ['Windowed', 'Fullscreen'] },
   owResolution: { title: 'Fullscreen resolution', what: 'How many pixels Overwatch draws in Fullscreen. Lower is faster but softer. Overwatch does not stretch 4:3, so it shows black bars unless your graphics driver is set to stretch.', fps: 3, look: 3, comp: 'Your native resolution; lower Render Scale in game instead if you need FPS.', art: 'pixels', labels: ['Low resolution', 'Native'] },
   owFullScreenRefresh: { title: 'Fullscreen refresh rate', what: 'The refresh rate Overwatch asks your monitor for in Fullscreen. If it is lower than your monitor supports, you cannot see more frames than this, however high your FPS.', fps: 0, look: 1, comp: 'Your monitor’s highest refresh rate.', art: 'fps', labels: ['60 Hz', 'High Hz'] },
-  owFrameRateCap: { title: 'Frame rate cap', what: 'Maximum frames per second. A cap a little under what your PC holds in fights keeps frame times even and the GPU from maxing out, which also lowers input lag.', fps: 0, look: 0, comp: 'A few FPS under your stable FPS, or 3 under your refresh rate with G-Sync/FreeSync (for example 237 on 240 Hz).', art: 'fps', labels: ['Uncapped: uneven', 'Capped: steady'] },
+  owFrameRateCap: { title: 'Frame rate cap', what: 'Maximum frames per second. 600 is the game maximum, so it is effectively unlimited. A cap a little under what your PC holds in fights keeps frame times even and the GPU from maxing out, which also lowers input lag.', fps: 0, look: 0, comp: 'A few FPS under your stable FPS, or 3 under your refresh rate with G-Sync/FreeSync (for example 237 on 240 Hz).', art: 'fps', labels: ['Uncapped: uneven', 'Capped: steady'] },
   owGraphicsAPI: { title: 'Graphics API', what: 'Which version of DirectX Overwatch uses. DirectX 12 can be smoother on newer GPUs; DirectX 11 is the long-tested option if you see stutters or crashes.', fps: 1, look: 0, comp: 'Try both; keep the one with steadier frame times on your PC.', art: 'cpu', labels: ['DirectX 11', 'DirectX 12'] },
   owCpuForceSyncEnabled: { title: 'Reduce buffering', what: 'Stops the CPU from preparing extra frames ahead of the GPU, so your clicks reach the screen sooner. Can cost a few FPS on weaker CPUs.', fps: 1, look: 0, comp: 'On.', rec: '1', art: 'buffers', labels: ['Off', 'On'] },
   owTripleBufferingEnabled: { title: 'Triple buffering', what: 'Adds a third frame buffer so V-Sync drops fewer frames. Without V-Sync it only adds input lag.', fps: 0, look: 0, comp: 'Off.', rec: '0', art: 'buffers', labels: ['Off', 'On'] },
@@ -101,6 +101,10 @@ const GUIDE = {
   owSSLRDetailLevel: { title: 'Screen-space reflections', what: 'Reflections on shiny surfaces such as water and polished floors.', fps: 2, look: 1, comp: 'Off.', rec: '0', art: 'bloom', labels: ['On', 'Off'] },
   owRefractionDetail: { title: 'Refraction', what: 'Light bending through glass, water and shields. Can make shield effects busier to look through.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'fog', labels: ['Off', 'On'] },
   owDynamicAmbient: { title: 'Dynamic ambient light', what: 'Light that bounces between surfaces and changes with the scene.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'ao', labels: ['Off', 'On'] },
+  owMasterVolume: { title: 'Master volume', what: 'Overall game volume. Keep it high enough that quiet footsteps are clear, and turn other apps down instead.', fps: 0, look: 0, comp: 'High; lower music instead.', art: 'hud', labels: ['Low', 'High'] },
+  owSFXVolume: { title: 'Sound effects', what: 'Footsteps, abilities and gunfire: the sounds that tell you where enemies are.', fps: 0, look: 0, comp: '100%.', rec: '100.000000', art: 'hud', labels: ['Low', 'High'] },
+  owMusicVolume: { title: 'Music', what: 'Menu and match music. It can drown out footsteps and ability cues.', fps: 0, look: 0, comp: 'Off (0%).', rec: '0.000000', art: 'hud', labels: ['Off', 'Loud'] },
+  owVoiceChatVolume: { title: 'Voice chat', what: 'How loud your teammates are.', fps: 0, look: 0, comp: 'Whatever keeps callouts clear without covering footsteps.', art: 'hud', labels: ['Low', 'High'] },
   owLocalFogDetail: { title: 'Local fog detail', what: 'Fog and haze effects around the map. Turning it off clears the view slightly and saves a little FPS.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'fog', labels: ['Off', 'On'] }
 };
 
@@ -589,6 +593,6 @@ function init() {
   }
 }
 
-window.riftlineGuide = { GUIDE, openGuide, refreshLoad, makeSetupCode, loadSetupCode, runPcCheck };
+window.riftlineGuide = { GUIDE, openGuide, refreshLoad, makeSetupCode, loadSetupCode, runPcCheck, decorateCards };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
