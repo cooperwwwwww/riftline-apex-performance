@@ -238,7 +238,7 @@ function getBool(id) { return Boolean(document.getElementById(id)?.checked); }
 function getValue(id) { return document.getElementById(id)?.value ?? ''; }
 
 function trackedControls() {
-  return $$('.workspace input[id], .workspace select[id], .workspace textarea[id]').filter(control => !SKIP_TRACK.has(control.id));
+  return $$('.workspace input[id], .workspace select[id], .workspace textarea[id]').filter(control => !SKIP_TRACK.has(control.id) && !control.closest('[data-untracked]'));
 }
 
 function snapshot() {

@@ -75,7 +75,33 @@ const GUIDE = {
   language: { title: 'Language override', what: 'Changes the game text language for this launch only. Voice packs still follow Steam’s language setting.', fps: 0, look: 0, comp: 'Leave on System default.', art: 'hud', labels: ['Default', 'Override'] },
   extraCommands: { title: 'Additional commands', what: 'Any other launch commands you want to add. Riftline warns you if one duplicates a command it already generates.', fps: 0, look: 0, comp: '', art: 'hud', labels: ['', ''] },
   customReticle: { title: 'Custom reticle color', what: 'Changes the colour of your crosshair and optic reticles so they stand out against the map.', fps: 0, look: 1, comp: 'A colour that contrasts with the map, like cyan, magenta or bright green.', art: 'reticle', labels: ['Default red', 'Custom'] },
-  configLock: { title: 'Lock video config', what: 'Marks Apex’s video settings file read-only so the game can’t overwrite your settings after an update or crash. Riftline unlocks it while applying.', fps: 0, look: 0, comp: 'On once you are happy with your settings.', art: 'lock', labels: ['Unlocked', 'Locked'] }
+  configLock: { title: 'Lock video config', what: 'Marks Apex’s video settings file read-only so the game can’t overwrite your settings after an update or crash. Riftline unlocks it while applying.', fps: 0, look: 0, comp: 'On once you are happy with your settings.', art: 'lock', labels: ['Unlocked', 'Locked'] },
+
+  // Overwatch 2
+  owWindowMode: { title: 'Display mode', what: 'Fullscreen gives Overwatch the monitor to itself, which has the lowest input lag and lets it use your full refresh rate. Borderless windowed makes Alt+Tab instant but can add a little lag.', fps: 1, look: 0, comp: 'Fullscreen.', rec: '0', art: 'window', labels: ['Windowed', 'Fullscreen'] },
+  owResolution: { title: 'Fullscreen resolution', what: 'How many pixels Overwatch draws in Fullscreen. Lower is faster but softer. Overwatch does not stretch 4:3, so it shows black bars unless your graphics driver is set to stretch.', fps: 3, look: 3, comp: 'Your native resolution; lower Render Scale in game instead if you need FPS.', art: 'pixels', labels: ['Low resolution', 'Native'] },
+  owFullScreenRefresh: { title: 'Fullscreen refresh rate', what: 'The refresh rate Overwatch asks your monitor for in Fullscreen. If it is lower than your monitor supports, you cannot see more frames than this, however high your FPS.', fps: 0, look: 1, comp: 'Your monitor’s highest refresh rate.', art: 'fps', labels: ['60 Hz', 'High Hz'] },
+  owFrameRateCap: { title: 'Frame rate cap', what: 'Maximum frames per second. A cap a little under what your PC holds in fights keeps frame times even and the GPU from maxing out, which also lowers input lag.', fps: 0, look: 0, comp: 'A few FPS under your stable FPS, or 3 under your refresh rate with G-Sync/FreeSync (for example 237 on 240 Hz).', art: 'fps', labels: ['Uncapped: uneven', 'Capped: steady'] },
+  owGraphicsAPI: { title: 'Graphics API', what: 'Which version of DirectX Overwatch uses. DirectX 12 can be smoother on newer GPUs; DirectX 11 is the long-tested option if you see stutters or crashes.', fps: 1, look: 0, comp: 'Try both; keep the one with steadier frame times on your PC.', art: 'cpu', labels: ['DirectX 11', 'DirectX 12'] },
+  owCpuForceSyncEnabled: { title: 'Reduce buffering', what: 'Stops the CPU from preparing extra frames ahead of the GPU, so your clicks reach the screen sooner. Can cost a few FPS on weaker CPUs.', fps: 1, look: 0, comp: 'On.', rec: '1', art: 'buffers', labels: ['Off', 'On'] },
+  owTripleBufferingEnabled: { title: 'Triple buffering', what: 'Adds a third frame buffer so V-Sync drops fewer frames. Without V-Sync it only adds input lag.', fps: 0, look: 0, comp: 'Off.', rec: '0', art: 'buffers', labels: ['Off', 'On'] },
+  owVerticalSyncEnabled: { title: 'V-Sync', what: 'Locks frames to your monitor refresh to stop tearing, but adds noticeable input lag.', fps: 0, look: 1, comp: 'Off. Use G-Sync/FreeSync with a frame cap instead.', rec: '0', art: 'vsync', labels: ['Off: tearing', 'On: extra lag'] },
+  owShowFPSCounter: { title: 'Show FPS', what: 'Shows Overwatch’s performance stats in a corner of the screen.', fps: 0, look: 0, comp: 'On while you tune.', art: 'hud', labels: ['Off', 'On'] },
+  owShowIntro: { title: 'Intro cinematic', what: 'Plays or skips the Blizzard intro when Overwatch starts.', fps: 0, look: 0, comp: 'Skip.', rec: '0', art: 'intro', labels: ['Play', 'Skip'] },
+  owTextureDetail: { title: 'Texture quality', what: 'Sharpness of surfaces, skins and the map. Mostly uses graphics memory rather than raw GPU power.', fps: 1, look: 2, comp: 'Medium on 4 GB cards, High or Ultra with 8 GB or more.', art: 'texture', labels: ['Low', 'Ultra'] },
+  owModelQuality: { title: 'Model detail', what: 'Detail of the map, props and heroes, and how far away they switch to simpler versions. Lower values also remove some visual clutter.', fps: 2, look: 2, comp: 'Low.', rec: '1', art: 'model', labels: ['Low', 'Ultra'] },
+  owLightQuality: { title: 'Lighting quality', what: 'Quality of lights and light effects around the map. Higher settings cost a lot in busy team fights.', fps: 2, look: 2, comp: 'Low.', rec: '0', art: 'fog', labels: ['Low', 'Ultra'] },
+  owAADetail: { title: 'Anti-aliasing', what: 'Smooths jagged edges. Higher levels blur the image slightly and cost FPS.', fps: 1, look: 2, comp: 'Off or Low.', rec: '0', art: 'aa', labels: ['Off', 'High'] },
+  owMaxAnisotropy: { title: 'Texture filtering', what: 'Keeps floors and walls sharp at steep angles. Very cheap on modern GPUs.', fps: 1, look: 1, comp: '4x or 8x.', rec: '4', art: 'filtering', labels: ['1x', '16x'] },
+  owDirectionalShadowDetail: { title: 'Sun shadows', what: 'Shadows cast by the sun. One of the most expensive settings, and turning it off makes enemies in shade easier to see.', fps: 3, look: 2, comp: 'Off.', rec: '0', art: 'shadow', labels: ['Off', 'On'] },
+  owSimpleDirectionalShadows: { title: 'Simple shadows', what: 'Uses a cheaper, blockier style for the shadows that remain.', fps: 1, look: 1, comp: 'On.', rec: '1', art: 'shadow', labels: ['Detailed', 'Simple'] },
+  owTranslucentShadowDetail: { title: 'Translucent shadows', what: 'Shadows cast through glass, smoke and effects.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'shadow', labels: ['Off', 'On'] },
+  owSSAOEnabled: { title: 'Ambient occlusion', what: 'Soft darkening where surfaces meet. Adds depth but costs a lot of GPU time.', fps: 3, look: 2, comp: 'Off.', rec: '0', art: 'ao', labels: ['Off', 'On'] },
+  owLocalReflections: { title: 'Local reflections', what: 'Reflections of nearby objects on floors and walls.', fps: 2, look: 1, comp: 'Off.', rec: '0', art: 'bloom', labels: ['On', 'Off'] },
+  owSSLRDetailLevel: { title: 'Screen-space reflections', what: 'Reflections on shiny surfaces such as water and polished floors.', fps: 2, look: 1, comp: 'Off.', rec: '0', art: 'bloom', labels: ['On', 'Off'] },
+  owRefractionDetail: { title: 'Refraction', what: 'Light bending through glass, water and shields. Can make shield effects busier to look through.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'fog', labels: ['Off', 'On'] },
+  owDynamicAmbient: { title: 'Dynamic ambient light', what: 'Light that bounces between surfaces and changes with the scene.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'ao', labels: ['Off', 'On'] },
+  owLocalFogDetail: { title: 'Local fog detail', what: 'Fog and haze effects around the map. Turning it off clears the view slightly and saves a little FPS.', fps: 1, look: 1, comp: 'Off.', rec: '0', art: 'fog', labels: ['Off', 'On'] }
 };
 
 const LEVEL = ['None', 'Low', 'Medium', 'High'];
@@ -499,7 +525,9 @@ const ICONS = {
   advanced: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
   launch: '<path d="M5 19l4-1 9-9a2.8 2.8 0 0 0-4-4l-9 9-1 4z"/><path d="M13 6l5 5"/>',
   pccheck: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>',
-  safety: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
+  safety: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  overwatch: '<circle cx="12" cy="12" r="9"/><path d="M8 9l4 7 4-7M12 3v4"/>',
+  games: '<rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3M16 12h.01M18 14h.01"/>'
 };
 function addNavIcons() {
   $$('.nav-item').forEach(item => {

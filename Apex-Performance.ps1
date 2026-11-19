@@ -422,6 +422,9 @@ function Open-RiftlineWindowsSetting {
     Start-Process "ms-settings:$Target"
 }
 
+# Overwatch 2 and the Games page live in their own file.
+. (Join-Path $PSScriptRoot 'games\Overwatch.ps1')
+
 function Get-CommonLowValues {
     return @{
         'setting.cl_gib_allow' = '0'
@@ -1376,6 +1379,7 @@ function Invoke-SelfTest {
     Remove-CustomProfile -Name 'Self Test'
     if (@(Get-CustomProfiles | Where-Object { $_.Name -eq 'Self Test' }).Count -ne 0) { throw 'Self-test failed: custom profile was not removed.' }
     Remove-CustomProfile -Name 'Second Test'
+    Invoke-OverwatchSelfTest
     Write-Host 'Self-test passed.' -ForegroundColor Green
 }
 
@@ -1551,7 +1555,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 29
+        version = 30
     }
 }
 
@@ -1657,6 +1661,12 @@ function Invoke-RiftlineAction {
         'restore-regular' { Restore-RegularApex; return (Add-RiftlineLiveState @{ message = 'The original Apex baseline was restored.' }) }
         'clear-cache' { Clear-ApexPsoCache; return [pscustomobject]@{ ok = $true; message = 'The PSO shader cache was cleared.' } }
         'pc-check' { return (Get-RiftlinePcCheck) }
+        'ow-state' { return (Get-OverwatchState) }
+        'ow-apply' { $result = Set-OverwatchSettings -Values $Body.values; return (Add-Member -InputObject $result -NotePropertyName state -NotePropertyValue (Get-OverwatchState) -PassThru) }
+        'ow-restore' { $result = Restore-OverwatchBackup -Which ([string]$Body.which); return (Add-Member -InputObject $result -NotePropertyName state -NotePropertyValue (Get-OverwatchState) -PassThru) }
+        'ow-launch' { Start-Overwatch; return [pscustomobject]@{ ok = $true } }
+        'games' { return (Get-RiftlineSteamGames) }
+        'launch-game' { Start-RiftlineSteamGame -AppId ([string]$Body.appid); return [pscustomobject]@{ ok = $true } }
         'open-windows-setting' { Open-RiftlineWindowsSetting -Target ([string]$Body.target); return [pscustomobject]@{ ok = $true } }
         'shutdown' { return [pscustomobject]@{ ok = $true } }
         default { throw "Unknown Riftline action: $Action" }
@@ -1813,6 +1823,7 @@ function Show-WebLauncher {
                     '/extras.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'extras.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/app.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'app.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/guide.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'guide.js'))) -ContentType 'application/javascript; charset=utf-8' }
+                    '/overwatch.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'overwatch.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/theme.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'theme.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/arena.png' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'assets\riftline-arena.png'))) -ContentType 'image/png' }
                     '/app-icon.png' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'assets\app-icon.png'))) -ContentType 'image/png' }

@@ -187,3 +187,58 @@
 .ratio-builder b { padding-bottom: 9px; color: var(--faint); }
 .ratio-builder button { flex: 1 0 auto; height: 38px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 8px; background: #1a2433; color: #e6ebf0; font-size: 12px; font-weight: 750; cursor: pointer; }
 .ratio-builder button:hover { border-color: var(--red); }
+
+/* ---------- Game switcher: only the active game's pages and buttons show ---------- */
+body[data-active-game="apex"] [data-game="overwatch"],
+body[data-active-game="overwatch"] [data-game="apex"] { display: none !important; }
+.game-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 14px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: rgba(10, 14, 20, .8); }
+.game-switch button { padding: 9px 6px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 750; cursor: pointer; transition: .18s; }
+.game-switch button:hover { color: #fff; }
+.game-switch button.active { background: linear-gradient(135deg, var(--red), #ff6d42); color: #fff; box-shadow: 0 6px 18px rgba(255, 77, 61, .25); }
+body[data-active-game="overwatch"] .game-switch button.active { background: linear-gradient(135deg, #f99e1a, #ffb84d); color: #1a1206; box-shadow: 0 6px 18px rgba(249, 158, 26, .25); }
+.ow-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-left: 8px; padding: 0 6px; border-radius: 10px; background: rgba(0, 0, 0, .25); font-size: 10px; }
+.ow-count.has-changes { background: #fff; color: #c53b2e; }
+
+/* ---------- Overwatch page ---------- */
+.ow-status { display: grid; justify-items: end; gap: 10px; }
+.ow-chip { padding: 8px 12px; border: 1px solid var(--line); border-radius: 20px; color: var(--muted); font-size: 12px; font-weight: 750; }
+.ow-chip[data-state="good"] { border-color: rgba(85, 210, 154, .35); color: var(--good); }
+.ow-chip[data-state="warn"] { border-color: rgba(242, 166, 90, .4); color: var(--warn); }
+.ow-alert { display: grid; gap: 8px; margin-bottom: 18px; }
+.ow-alert > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid rgba(242, 166, 90, .35); border-left: 3px solid var(--warn); border-radius: 12px; background: rgba(242, 166, 90, .07); }
+.ow-alert p { margin: 0; color: #f3d2b0; font-size: 13px; line-height: 1.5; }
+.ow-alert .button { flex: 0 0 auto; }
+.ow-groups { display: grid; gap: 22px; }
+.ow-group > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 12px; }
+.ow-group > header span { color: #ffb84d; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.ow-group > header small { color: var(--faint); font-size: 11.5px; }
+.ow-card select { width: 190px; }
+.ow-now { display: inline-block; margin-top: 7px; padding: 3px 8px; border-radius: 6px; background: rgba(255, 255, 255, .04); color: #9aa6b4; font-size: 11px; font-weight: 700; }
+.ow-card.ow-changed { border-color: rgba(249, 158, 26, .55); box-shadow: 0 0 0 1px rgba(249, 158, 26, .25); }
+.ow-card.ow-changed .ow-now { background: rgba(249, 158, 26, .14); color: #ffcf85; }
+.ow-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 22px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(13, 18, 26, .9); }
+.ow-footer span, .ow-footer strong, .ow-footer small { display: block; }
+.ow-footer span { color: var(--faint); font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.ow-footer strong { margin-top: 6px; font: 12px/1.5 Consolas, monospace; word-break: break-all; }
+.ow-footer small { margin-top: 4px; color: var(--muted); font-size: 11.5px; }
+.ow-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Games page ---------- */
+.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.game-card { display: grid; grid-template-columns: 64px 1fr; gap: 14px 16px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, rgba(22, 30, 41, .92), rgba(13, 18, 26, .92)); }
+.game-card.tunable { border-color: rgba(255, 77, 61, .3); }
+.game-art { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, #253245, #151d28); color: #e8edf2; font: 800 20px/1 "Arial Narrow", Inter, sans-serif; letter-spacing: .04em; }
+.game-card.tunable .game-art { background: linear-gradient(135deg, var(--red), #8f2a20); }
+.game-info h3 { margin: 2px 0 4px; font-size: 16px; }
+.game-info p { margin: 0; color: var(--muted); font-size: 12px; }
+.game-badge { display: inline-block; margin-top: 8px; padding: 3px 8px; border-radius: 6px; background: rgba(255, 255, 255, .05); color: var(--faint); font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.game-card.tunable .game-badge { background: rgba(255, 77, 61, .14); color: #ffa79b; }
+.game-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.game-actions .button { flex: 1 0 auto; }
+
+@media (max-width: 760px) {
+  .game-switch { margin-top: 8px; }
+  .ow-card select { width: 100%; }
+  .ow-status { justify-items: start; }
+  .ow-alert > div { flex-direction: column; align-items: flex-start; }
+}

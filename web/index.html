@@ -16,7 +16,7 @@
         <span class="brand-mark">R</span>
         <span><strong>RIFTLINE</strong><small>APEX PERFORMANCE SUITE</small></span>
       </button>
-      <div class="preset-strip" aria-label="Quick presets">
+      <div class="preset-strip" aria-label="Quick presets" data-game="apex">
         <span>Preset</span>
         <button data-profile="Competitive" title="Applies the Competitive native profile now (backed up first)">Competitive</button>
         <button data-profile="Balanced" title="Applies the Balanced profile now (backed up first)">Balanced</button>
@@ -25,9 +25,11 @@
       <div class="busy-indicator" id="busyIndicator" aria-live="polite"><i></i><span id="busyLabel">Working…</span></div>
       <div class="top-actions">
         <button class="explain-toggle" id="explainToggle" aria-pressed="true" title="Show or hide a plain-language explanation under every setting"><span>Explain</span><b>On</b></button>
-        <button class="review-button" data-open-review><span>Review</span><b id="reviewCount">0</b></button>
-        <button class="button button-primary" data-apply>Apply changes</button>
-        <button class="button button-dark" data-launch>Launch Apex</button>
+        <button class="review-button" data-open-review data-game="apex"><span>Review</span><b id="reviewCount">0</b></button>
+        <button class="button button-primary" data-apply data-game="apex">Apply changes</button>
+        <button class="button button-dark" data-launch data-game="apex">Launch Apex</button>
+        <button class="button button-primary" data-ow-apply data-game="overwatch">Apply<b class="ow-count" id="owCount">0</b></button>
+        <button class="button button-dark" data-ow-launch data-game="overwatch">Launch Overwatch</button>
         <div class="window-controls"><button data-window="minimize" aria-label="Minimize Riftline">—</button><button data-window="maximize" aria-label="Maximize Riftline">□</button><button class="window-close" data-window="close" data-shutdown aria-label="Close Riftline">×</button></div>
       </div>
     </header>
@@ -39,27 +41,30 @@
         <kbd>Ctrl K</kbd>
       </label>
       <div class="search-results" id="searchResults" role="listbox" aria-label="Matching settings" hidden></div>
+      <div class="game-switch" role="radiogroup" aria-label="Game"><button data-switch-game="apex" role="radio">Apex Legends</button><button data-switch-game="overwatch" role="radio">Overwatch 2</button></div>
       <nav>
-        <button class="nav-item active" data-page="overview"><span>01</span>Overview</button>
-        <button class="nav-item" data-page="display"><span>02</span>Display</button>
-        <button class="nav-item" data-page="visuals"><span>03</span>Visuals</button>
-        <button class="nav-item" data-page="advanced"><span>04</span>Advanced</button>
-        <button class="nav-item" data-page="launch"><span>05</span>Launch</button>
-        <button class="nav-item" data-page="pccheck"><span>06</span>PC Check</button>
-        <button class="nav-item" data-page="safety"><span>07</span>Safety</button>
+        <button class="nav-item active" data-page="overview" data-game="apex"><span>01</span>Overview</button>
+        <button class="nav-item" data-page="display" data-game="apex"><span>02</span>Display</button>
+        <button class="nav-item" data-page="visuals" data-game="apex"><span>03</span>Visuals</button>
+        <button class="nav-item" data-page="advanced" data-game="apex"><span>04</span>Advanced</button>
+        <button class="nav-item" data-page="launch" data-game="apex"><span>05</span>Launch</button>
+        <button class="nav-item" data-page="overwatch" data-game="overwatch"><span>01</span>Overwatch 2</button>
+        <button class="nav-item" data-page="safety" data-game="apex"><span>06</span>Safety</button>
+        <button class="nav-item" data-page="pccheck"><span>07</span>PC Check</button>
+        <button class="nav-item" data-page="games"><span>08</span>Games</button>
       </nav>
       <div class="sidebar-footer">
-        <div class="load-estimate" id="loadEstimate" title="A rough guide from the settings you have chosen, not a measurement. Lower means more FPS.">
+        <div class="load-estimate" id="loadEstimate" data-game="apex" title="A rough guide from the settings you have chosen, not a measurement. Lower means more FPS.">
           <span class="load-label">Graphics load<b id="loadGraphicsText">—</b></span><i class="load-bar"><i id="loadGraphicsBar"></i></i>
           <span class="load-label">Pixels drawn<b id="loadPixelsText">—</b></span><i class="load-bar"><i id="loadPixelsBar"></i></i>
         </div>
-        <div class="connection"><i></i><span id="connectionText">Connecting to Apex…</span></div>
-        <div class="build">RIFTLINE <span>BUILD 29 · OFFLINE NATIVE</span></div>
+        <div class="connection" data-game="apex"><i></i><span id="connectionText">Connecting to Apex…</span></div>
+        <div class="build">RIFTLINE <span>BUILD 30 · OFFLINE NATIVE</span></div>
       </div>
     </aside>
 
     <main class="workspace">
-      <section class="page active" data-page-panel="overview">
+      <section class="page active" data-page-panel="overview" data-game="apex">
         <div class="page-heading">
           <div><p class="eyebrow">Performance command center</p><h1>Ready for the drop.</h1><p>Choose a tuned starting point, review the exact changes, then launch through the official Steam route.</p></div>
           <div class="hardware-card"><span>Detected hardware</span><strong id="gpuName">Scanning GPU…</strong><small id="nativeResolution">Native display</small></div>
@@ -91,7 +96,7 @@
         </article>
       </section>
 
-      <section class="page" data-page-panel="display">
+      <section class="page" data-page-panel="display" data-game="apex">
         <div class="page-heading compact"><div><p class="eyebrow">Output and render scale</p><h1>Display</h1><p>Control the final picture, screen shape, and how far internal 3D resolution may scale under load.</p></div><div class="impact-badge"><span>Estimated load</span><strong id="pixelLoad">100%</strong></div></div>
         <div class="content-grid display-grid">
           <div class="settings-column">
@@ -137,7 +142,7 @@
         </div>
       </section>
 
-      <section class="page" data-page-panel="visuals">
+      <section class="page" data-page-panel="visuals" data-game="apex">
         <div class="page-heading compact"><div><p class="eyebrow">Rendering quality</p><h1>Visuals</h1><p>Keep the details that matter to you and cut the effects that cost frames.</p></div><button class="preset-pill" data-load="fps">Load max FPS values</button></div>
         <article class="engine-preview" id="visualPreview">
           <div class="engine-preview-media"><img id="visualPreviewImage" src="../assets/previews/stream_memory_1000000.webp" alt="Real Apex Legends graphics setting preview"><span id="visualPreviewValue">3 GB</span></div>
@@ -161,7 +166,7 @@
         </div>
       </section>
 
-      <section class="page" data-page-panel="advanced">
+      <section class="page" data-page-panel="advanced" data-game="apex">
         <div class="page-heading compact"><div><p class="eyebrow">Engine-level controls</p><h1>Advanced</h1><p>Fine-tune memory, shadows, distance, particles, physics, and field of view.</p></div><div class="preset-actions"><button data-load="fps">Most FPS</button><button data-load="balanced">Balanced</button><button data-load="quality">Best picture</button></div></div>
         <article class="engine-preview advanced-preview" id="advancedPreview">
           <div class="engine-preview-media"><img id="advancedPreviewImage" src="../assets/previews/csm_cascade_res_512.webp" alt="Real Apex Legends advanced setting preview"><span id="advancedPreviewValue">512</span></div>
@@ -197,7 +202,7 @@
         </div>
       </section>
 
-      <section class="page" data-page-panel="launch">
+      <section class="page" data-page-panel="launch" data-game="apex">
         <div class="page-heading compact"><div><p class="eyebrow">Official Steam launch path</p><h1>Launch studio</h1><p>Customize the complete safe launch line, reticle color, frame limits, language, display behavior, and expert switches.</p></div><div class="safe-badge">Validated command set</div></div>
         <article class="reticle-designer" data-search="reticle crosshair color rgb colour wheel">
           <div class="reticle-scene"><img src="../assets/previews/preset_competitive.webp" alt="Apex Legends scene behind the custom reticle preview"><span class="reticle-crosshair" id="reticlePreview"><i></i><b></b><em></em></span><small>LIVE RETICLE PREVIEW</small></div>
@@ -245,12 +250,31 @@
         </div>
       </section>
 
+      <section class="page" data-page-panel="overwatch" data-game="overwatch" data-untracked>
+        <div class="page-heading compact"><div><p class="eyebrow">Blizzard · Overwatch 2</p><h1>Overwatch 2</h1><p>Tune Overwatch's graphics and input-lag settings outside the game. Riftline backs up your settings file before every change and only touches the settings below.</p></div><div class="ow-status"><span class="ow-chip" id="owStatus">Checking…</span><div class="preset-actions"><button data-ow-preset="fps">Most FPS</button><button data-ow-preset="balanced">Balanced</button><button data-ow-preset="quality">Best picture</button></div></div></div>
+        <div class="ow-alert" id="owAlert" hidden></div>
+        <div class="ow-groups">
+          <section class="ow-group"><header><span>Display and frame rate</span></header><div class="settings-list two-up"><article class="setting-card ow-card" data-search="overwatch display mode fullscreen borderless windowed"><div class="setting-title"><div><h3>Display mode</h3><p>Fullscreen has the lowest input lag</p><span class="ow-now" data-ow-now="WindowMode"></span></div><select id="owWindowMode" data-ow-key="WindowMode"><option value="">Leave as is</option><option value="0">Fullscreen</option><option value="1">Borderless windowed</option><option value="2">Windowed</option></select></div></article><article class="setting-card ow-card" data-search="overwatch resolution width height"><div class="setting-title"><div><h3>Fullscreen resolution</h3><p>Used in Fullscreen mode</p><span class="ow-now" data-ow-now="Resolution"></span></div><select id="owResolution" data-ow-key="Resolution"><option value="">Leave as is</option><option value="2560x1440">2560 × 1440</option><option value="1920x1080">1920 × 1080</option><option value="1600x900">1600 × 900</option><option value="1280x720">1280 × 720</option><option value="3840x2160">3840 × 2160</option><option value="2560x1080">2560 × 1080</option><option value="3440x1440">3440 × 1440</option><option value="1920x1200">1920 × 1200</option><option value="1680x1050">1680 × 1050</option><option value="1440x1080">1440 × 1080 (4:3)</option><option value="1280x960">1280 × 960 (4:3)</option><option value="1024x768">1024 × 768 (4:3)</option></select></div></article><article class="setting-card ow-card" data-search="overwatch refresh rate hz"><div class="setting-title"><div><h3>Fullscreen refresh rate</h3><p>Should match your monitor</p><span class="ow-now" data-ow-now="FullScreenRefresh"></span></div><select id="owFullScreenRefresh" data-ow-key="FullScreenRefresh"><option value="">Leave as is</option><option value="360">360 Hz</option><option value="280">280 Hz</option><option value="240">240 Hz</option><option value="200">200 Hz</option><option value="180">180 Hz</option><option value="165">165 Hz</option><option value="144">144 Hz</option><option value="120">120 Hz</option><option value="100">100 Hz</option><option value="75">75 Hz</option><option value="60">60 Hz</option></select></div></article><article class="setting-card ow-card" data-search="overwatch fps cap frame rate limit"><div class="setting-title"><div><h3>Frame rate cap</h3><p>Custom FPS limit, up to 600</p><span class="ow-now" data-ow-now="FrameRateCap"></span></div><select id="owFrameRateCap" data-ow-key="FrameRateCap"><option value="">Leave as is</option><option value="600">600 FPS</option><option value="400">400 FPS</option><option value="300">300 FPS</option><option value="240">240 FPS</option><option value="237">237 FPS</option><option value="200">200 FPS</option><option value="165">165 FPS</option><option value="160">160 FPS</option><option value="144">144 FPS</option><option value="141">141 FPS</option><option value="120">120 FPS</option><option value="60">60 FPS</option></select></div></article><article class="setting-card ow-card" data-search="overwatch directx dx11 dx12 api"><div class="setting-title"><div><h3>Graphics API</h3><p>DirectX 11 or DirectX 12</p><span class="ow-now" data-ow-now="GraphicsAPI"></span></div><select id="owGraphicsAPI" data-ow-key="GraphicsAPI"><option value="">Leave as is</option><option value="Dx11">DirectX 11</option><option value="Dx12">DirectX 12</option></select></div></article></div></section>
+          <section class="ow-group"><header><span>Input lag</span></header><div class="settings-list two-up"><article class="setting-card ow-card" data-search="overwatch reduce buffering input lag latency"><div class="setting-title"><div><h3>Reduce buffering</h3><p>Cuts input lag; may lower FPS slightly</p><span class="ow-now" data-ow-now="CpuForceSyncEnabled"></span></div><select id="owCpuForceSyncEnabled" data-ow-key="CpuForceSyncEnabled"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch triple buffering"><div class="setting-title"><div><h3>Triple buffering</h3><p>Smoother with V-Sync, but adds lag</p><span class="ow-now" data-ow-now="TripleBufferingEnabled"></span></div><select id="owTripleBufferingEnabled" data-ow-key="TripleBufferingEnabled"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch vsync tearing"><div class="setting-title"><div><h3>V-Sync</h3><p>Stops tearing, adds input lag</p><span class="ow-now" data-ow-now="VerticalSyncEnabled"></span></div><select id="owVerticalSyncEnabled" data-ow-key="VerticalSyncEnabled"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch fps counter performance stats"><div class="setting-title"><div><h3>Show FPS</h3><p>Performance stats overlay</p><span class="ow-now" data-ow-now="ShowFPSCounter"></span></div><select id="owShowFPSCounter" data-ow-key="ShowFPSCounter"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch intro cinematic skip"><div class="setting-title"><div><h3>Intro cinematic</h3><p>Blizzard intro when the game starts</p><span class="ow-now" data-ow-now="ShowIntro"></span></div><select id="owShowIntro" data-ow-key="ShowIntro"><option value="">Leave as is</option><option value="0">Skip</option><option value="1">Play</option></select></div></article></div></section>
+          <section class="ow-group"><header><span>Graphics quality</span><small>Settings that only offer Off can be switched off here; for their other levels, use the in-game menu.</small></header><div class="settings-list two-up"><article class="setting-card ow-card" data-search="overwatch texture quality"><div class="setting-title"><div><h3>Texture quality</h3><p>Surface sharpness; mostly uses VRAM</p><span class="ow-now" data-ow-now="TextureDetail"></span></div><select id="owTextureDetail" data-ow-key="TextureDetail"><option value="">Leave as is</option><option value="1">Low</option><option value="2">Medium</option><option value="3">High</option><option value="4">Ultra</option></select></div></article><article class="setting-card ow-card" data-search="overwatch model detail"><div class="setting-title"><div><h3>Model detail</h3><p>Detail of maps, props and heroes</p><span class="ow-now" data-ow-now="ModelQuality"></span></div><select id="owModelQuality" data-ow-key="ModelQuality"><option value="">Leave as is</option><option value="1">Low</option><option value="2">Medium</option><option value="3">High</option><option value="4">Ultra</option></select></div></article><article class="setting-card ow-card" data-search="overwatch lighting quality"><div class="setting-title"><div><h3>Lighting quality</h3><p>Lights and light effects</p><span class="ow-now" data-ow-now="LightQuality"></span></div><select id="owLightQuality" data-ow-key="LightQuality"><option value="">Leave as is</option><option value="0">Low</option><option value="1">Medium</option><option value="2">High</option><option value="3">Ultra</option></select></div></article><article class="setting-card ow-card" data-search="overwatch anti aliasing aa"><div class="setting-title"><div><h3>Anti-aliasing</h3><p>Smooths jagged edges</p><span class="ow-now" data-ow-now="AADetail"></span></div><select id="owAADetail" data-ow-key="AADetail"><option value="">Leave as is</option><option value="0">Off</option><option value="1">Low</option><option value="2">Medium</option><option value="3">High</option></select></div></article><article class="setting-card ow-card" data-search="overwatch anisotropic texture filtering"><div class="setting-title"><div><h3>Texture filtering</h3><p>Keeps angled floors sharp</p><span class="ow-now" data-ow-now="MaxAnisotropy"></span></div><select id="owMaxAnisotropy" data-ow-key="MaxAnisotropy"><option value="">Leave as is</option><option value="1">1x</option><option value="2">2x</option><option value="4">4x</option><option value="8">8x</option><option value="16">16x</option></select></div></article><article class="setting-card ow-card" data-search="overwatch shadow detail sun"><div class="setting-title"><div><h3>Sun shadows</h3><p>Shadow detail from the sun</p><span class="ow-now" data-ow-now="DirectionalShadowDetail"></span></div><select id="owDirectionalShadowDetail" data-ow-key="DirectionalShadowDetail"><option value="">Leave as is</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch simple shadows"><div class="setting-title"><div><h3>Simple shadows</h3><p>Cheaper shadow style</p><span class="ow-now" data-ow-now="SimpleDirectionalShadows"></span></div><select id="owSimpleDirectionalShadows" data-ow-key="SimpleDirectionalShadows"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch translucent shadows"><div class="setting-title"><div><h3>Translucent shadows</h3><p>Shadows through glass and effects</p><span class="ow-now" data-ow-now="TranslucentShadowDetail"></span></div><select id="owTranslucentShadowDetail" data-ow-key="TranslucentShadowDetail"><option value="">Leave as is</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch ambient occlusion ssao"><div class="setting-title"><div><h3>Ambient occlusion</h3><p>Contact shading in corners</p><span class="ow-now" data-ow-now="SSAOEnabled"></span></div><select id="owSSAOEnabled" data-ow-key="SSAOEnabled"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch local reflections"><div class="setting-title"><div><h3>Local reflections</h3><p>Reflections on nearby surfaces</p><span class="ow-now" data-ow-now="LocalReflections"></span></div><select id="owLocalReflections" data-ow-key="LocalReflections"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch screen space reflections"><div class="setting-title"><div><h3>Screen-space reflections</h3><p>Shiny-surface reflections</p><span class="ow-now" data-ow-now="SSLRDetailLevel"></span></div><select id="owSSLRDetailLevel" data-ow-key="SSLRDetailLevel"><option value="">Leave as is</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch refraction quality"><div class="setting-title"><div><h3>Refraction</h3><p>Light bending through glass and water</p><span class="ow-now" data-ow-now="RefractionDetail"></span></div><select id="owRefractionDetail" data-ow-key="RefractionDetail"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch dynamic ambient"><div class="setting-title"><div><h3>Dynamic ambient light</h3><p>Light bouncing between surfaces</p><span class="ow-now" data-ow-now="DynamicAmbient"></span></div><select id="owDynamicAmbient" data-ow-key="DynamicAmbient"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article><article class="setting-card ow-card" data-search="overwatch local fog"><div class="setting-title"><div><h3>Local fog detail</h3><p>Fog and haze around the map</p><span class="ow-now" data-ow-now="LocalFogDetail"></span></div><select id="owLocalFogDetail" data-ow-key="LocalFogDetail"><option value="">Leave as is</option><option value="1">On</option><option value="0">Off</option></select></div></article></div></section>
+        </div>
+        <div class="ow-footer">
+          <div><span>Settings file</span><strong id="owPath">—</strong><small id="owBackups">No backups yet</small></div>
+          <div class="ow-actions"><button class="button button-dark" data-ow-restore="latest">Undo last change</button><button class="button button-dark" data-ow-restore="original">Restore original</button><button class="button button-primary" data-ow-apply>Apply to Overwatch</button></div>
+        </div>
+      </section>
+
+      <section class="page" data-page-panel="games" data-untracked>
+        <div class="page-heading compact"><div><p class="eyebrow">Your library</p><h1>Games</h1><p>Every Steam game Riftline found on this PC. Launch any of them from here; games marked Tunable have their own settings pages in Riftline. PC Check helps every game.</p></div><button class="button button-dark" data-games-refresh>Refresh</button></div>
+        <div class="games-grid" id="gamesGrid"><div class="pc-loading">Open this page to find your games.</div></div>
+      </section>
+
       <section class="page" data-page-panel="pccheck">
         <div class="page-heading compact"><div><p class="eyebrow">Windows and hardware</p><h1>PC Check</h1><p>Riftline looks at the Windows settings that most often cost Apex players FPS or add input lag. It only reads them; each fix opens the right Windows Settings page so you stay in control.</p></div><div class="pc-check-actions"><span class="pc-summary" id="pcCheckSummary" data-state="">Not checked yet</span><button class="button button-primary" data-pc-check>Run check again</button></div></div>
         <div class="pc-check-list" id="pcCheckList"><div class="pc-loading">Open this page to check your PC.</div></div>
       </section>
 
-      <section class="page" data-page-panel="safety">
+      <section class="page" data-page-panel="safety" data-game="apex">
         <div class="page-heading compact"><div><p class="eyebrow">Backups and recovery</p><h1>Safety</h1><p>See exactly where Riftline writes, lock the result, or return to regular Apex.</p></div><div class="safe-badge">Reversible by design</div></div>
         <div class="safety-grid">
           <article class="path-card"><span>Apex config folder</span><strong id="configPath">Detecting…</strong><small id="configStatus">Checking connection</small></article>
@@ -273,5 +297,6 @@
   <div class="loading-screen" id="loadingScreen"><div class="loading-brand"><span>R</span><strong>RIFTLINE</strong><small>Starting the offline performance engine</small><i></i></div></div>
   <script src="app.js"></script>
   <script src="guide.js"></script>
+  <script src="overwatch.js"></script>
 </body>
 </html>

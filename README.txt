@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 29.0
+RIFTLINE - APEX PERFORMANCE SUITE 30.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,27 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 30.0
+--------------------
+- Riftline now supports more than one game. A switcher at the top of the
+  sidebar picks Apex Legends or Overwatch 2; each game has its own pages and
+  its own Apply and Launch buttons.
+- New Overwatch 2 page. It edits Documents\Overwatch\Settings\Settings_v0.ini:
+  display mode, fullscreen resolution and refresh rate, frame rate cap,
+  DirectX 11/12, reduce buffering, triple buffering, V-Sync, FPS display,
+  intro, and texture, model, lighting, anti-aliasing, filtering, shadow,
+  ambient occlusion, reflection, refraction and fog settings. Every setting
+  has an explanation and a competitive pick.
+- Overwatch safety: Riftline only writes the settings on that page, rejects
+  any other key or value, refuses to write while Overwatch is running, keeps
+  the original file plus the 25 newest backups, and has Undo last change and
+  Restore original buttons. Line endings and every other line stay as they are.
+- Overwatch warnings: Riftline points out a fullscreen refresh rate lower
+  than your monitor's, and triple buffering left on without V-Sync, with a
+  one-click fix.
+- New Games page listing every installed Steam game, with Launch buttons and
+  Tune settings for the games Riftline supports.
 
 WHAT CHANGED IN 29.0
 --------------------
