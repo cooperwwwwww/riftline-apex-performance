@@ -284,3 +284,13 @@ body[data-family="unreal"] .subtabs button.active { box-shadow: inset 0 -2px 0 #
 .subtabs + .ow-groups .ow-group > header > span { display: none; }
 .subtabs + .ow-groups .ow-group > header:not(:has(small)) { display: none; }
 @media (max-width: 760px) { .subtabs { top: -24px; } .subtabs button { flex: 0 0 auto; padding: 0 12px; } }
+
+/* ---------- Stay idle while a game is running ----------
+   Endless animations keep the window rendering even when they are invisible, which costs
+   CPU and GPU time a game could use. They only run while they are actually on screen, and
+   everything pauses while Riftline is not the focused window. */
+body:not(.is-busy) .busy-indicator i { animation: none; }
+.loading-screen.hidden .loading-brand i { animation: none; }
+.loading-screen.hidden { display: none; }
+.pc-loading:not(:has(i)) { animation: none; }
+body.app-idle *, body.app-idle *::before, body.app-idle *::after { animation-play-state: paused !important; transition: none !important; }

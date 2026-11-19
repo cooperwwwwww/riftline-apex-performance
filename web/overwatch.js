@@ -128,6 +128,9 @@ function renderAlert() {
   const tips = [];
   if (!owState?.settingsExists) tips.push({ text: 'Overwatch has not saved a settings file on this PC yet. Start Overwatch, change any graphics setting, close the game, then come back.' });
   if (monitor && refresh && refresh < monitor) tips.push({ text: `Fullscreen refresh rate is ${refresh} Hz, but your monitor runs at ${monitor} Hz. In Fullscreen mode Overwatch would show at most ${refresh} frames a second.`, fix: () => { setOw('FullScreenRefresh', String(monitor)); setOw('WindowMode', '0'); }, fixLabel: `Use ${monitor} Hz fullscreen` });
+  const cap = Number(owState?.values?.FrameRateCap || 0);
+  const capInUse = owState?.values?.UseCustomFrameRates === '1' || owState?.values?.LimitToRefresh !== '1';
+  if (cap && cap < 600 && capInUse) tips.push({ text: `The frame rate cap is ${cap} FPS. If your PC can run faster, this holds it back. 600 is the game's maximum.`, fix: () => setOw('FrameRateCap', '600'), fixLabel: 'Use 600 FPS' });
   if (owState?.values?.TripleBufferingEnabled === '1' && owState?.values?.VerticalSyncEnabled !== '1') tips.push({ text: 'Triple buffering is on without V-Sync. It only helps with V-Sync and adds input lag otherwise.', fix: () => setOw('TripleBufferingEnabled', '0'), fixLabel: 'Turn triple buffering off' });
   if (owState?.readOnly) tips.push({ text: 'Your settings file is marked read-only. Riftline will unlock it to save and lock it again, so in-game changes will not stick.' });
   alert.hidden = tips.length === 0;
@@ -196,7 +199,7 @@ async function restoreOverwatch(which) {
 }
 
 const OW_PRESETS = {
-  fps: { WindowMode: '0', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '2', ModelQuality: '1', LightQuality: '0', AADetail: '0', MaxAnisotropy: '4', DirectionalShadowDetail: '0', SimpleDirectionalShadows: '1', TranslucentShadowDetail: '0', SSAOEnabled: '0', LocalReflections: '0', SSLRDetailLevel: '0', RefractionDetail: '0', DynamicAmbient: '0', LocalFogDetail: '0' },
+  fps: { WindowMode: '0', FrameRateCap: '600', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '1', ModelQuality: '1', LightQuality: '0', AADetail: '0', MaxAnisotropy: '1', DirectionalShadowDetail: '0', SimpleDirectionalShadows: '1', TranslucentShadowDetail: '0', SSAOEnabled: '0', LocalReflections: '0', SSLRDetailLevel: '0', RefractionDetail: '0', DynamicAmbient: '0', LocalFogDetail: '0' },
   balanced: { WindowMode: '0', CpuForceSyncEnabled: '1', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', ShowIntro: '0', TextureDetail: '3', ModelQuality: '2', LightQuality: '1', AADetail: '1', MaxAnisotropy: '8', SSAOEnabled: '0', LocalReflections: '0', RefractionDetail: '1', DynamicAmbient: '1', LocalFogDetail: '1' },
   quality: { WindowMode: '0', CpuForceSyncEnabled: '0', TripleBufferingEnabled: '0', VerticalSyncEnabled: '0', TextureDetail: '4', ModelQuality: '4', LightQuality: '3', AADetail: '3', MaxAnisotropy: '16', SimpleDirectionalShadows: '0', SSAOEnabled: '1', LocalReflections: '1', RefractionDetail: '1', DynamicAmbient: '1', LocalFogDetail: '1' }
 };

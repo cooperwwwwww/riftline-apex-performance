@@ -114,6 +114,13 @@ $('#launchCommandSearch')?.addEventListener('input', event => {
 });
 
 ['visuals', 'advanced', 'launch', 'overwatch'].forEach(build);
+
+// Pause all animation while Riftline is in the background (for example behind a borderless game).
+const setIdle = idle => document.body.classList.toggle('app-idle', idle);
+window.addEventListener('blur', () => setIdle(true));
+window.addEventListener('focus', () => setIdle(false));
+document.addEventListener('visibilitychange', () => setIdle(document.visibilityState !== 'visible'));
+setIdle(!document.hasFocus());
 // The Unreal page is drawn per game, so games.js asks for its tabs after each render.
 window.riftlineTabs = { build, select, updateCounts };
 })();

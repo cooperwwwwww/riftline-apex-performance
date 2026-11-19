@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 32.0
+RIFTLINE - APEX PERFORMANCE SUITE 33.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,18 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 33.0
+--------------------
+- Riftline no longer takes FPS from your games. Two hidden progress animations
+  kept the window rendering all the time, even behind a borderless game.
+  They now only run while visible, and every animation pauses whenever
+  Riftline is not the focused window. Idle CPU use dropped about 15 times.
+- Overwatch Most FPS now sets the frame cap to 600 (the game maximum) and
+  the lowest texture and filtering levels. Resolution is never changed.
+- Overwatch warns when the frame cap is below 600, with a one-click fix.
+- Unreal games: Most FPS now also uncaps the frame rate and lowers view
+  distance and textures, while keeping resolution and 3D resolution at 100%.
 
 WHAT CHANGED IN 32.0
 --------------------
