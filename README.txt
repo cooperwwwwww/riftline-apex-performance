@@ -1,4 +1,4 @@
-RIFTLINE - APEX PERFORMANCE SUITE 35.0
+RIFTLINE - APEX PERFORMANCE SUITE 36.0
 ======================================
 
 WHAT THIS IS
@@ -19,6 +19,20 @@ QUICK START - ONLY THREE STEPS
 
 That is all most people need. Display, Visuals, Advanced, Launch, and Safety are
 optional. If an action fails, Riftline shows the exact error in the app.
+
+WHAT CHANGED IN 36.0
+--------------------
+- Any field of view in Apex. Display now has a Field of view card: type any
+  number from 1 to 179 (decimals such as 104.5 work), drag the slider, or tap
+  a common value. Apex's own menu stops at 110; values outside 70-110 are
+  written anyway, and if Apex caps one, Riftline shows the value Apex kept.
+  Leave the box empty to keep your current FOV. profile.cfg is backed up first.
+- New All settings page: every setting for the selected game in one list, with
+  what it does in plain words, its FPS cost, its value now, and the pro pick.
+  Filter by words, sort by biggest FPS cost, or show only settings that are
+  changed or differ from the pro pick. Show jumps to it; Explain opens the guide.
+- Search understands everyday words (crosshair, blurry, zoom, input lag) and
+  small typos, and each result shows a one-line explanation.
 
 WHAT CHANGED IN 35.0
 --------------------

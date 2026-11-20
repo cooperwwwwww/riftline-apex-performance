@@ -53,8 +53,9 @@
         <button class="nav-item" data-page="overwatch" data-game="overwatch"><span>01</span>Overwatch 2</button>
         <button class="nav-item" data-page="unreal" data-game="unreal"><span>01</span><b id="ueNavName">Game</b></button>
         <button class="nav-item" data-page="safety" data-game="apex"><span>06</span>Safety</button>
-        <button class="nav-item" data-page="pccheck"><span>07</span>PC Check</button>
-        <button class="nav-item" data-page="games"><span>08</span>Games</button>
+        <button class="nav-item" data-page="settings"><span>07</span>All settings</button>
+        <button class="nav-item" data-page="pccheck"><span>08</span>PC Check</button>
+        <button class="nav-item" data-page="games"><span>09</span>Games</button>
       </nav>
       <div class="sidebar-footer">
         <div class="load-estimate" id="loadEstimate" data-game="apex" title="A rough guide from the settings you have chosen, not a measurement. Lower means more FPS.">
@@ -62,7 +63,7 @@
           <span class="load-label">Pixels drawn<b id="loadPixelsText">—</b></span><i class="load-bar"><i id="loadPixelsBar"></i></i>
         </div>
         <div class="connection" data-game="apex"><i></i><span id="connectionText">Connecting to Apex…</span></div>
-        <div class="build">RIFTLINE <span>BUILD 35 · OFFLINE NATIVE</span></div>
+        <div class="build">RIFTLINE <span>BUILD 36 · OFFLINE NATIVE</span></div>
       </div>
     </aside>
 
@@ -127,6 +128,12 @@
               <div class="setting-title"><div><span class="step">04</span><h3>Adaptive 3D resolution</h3><p>Lowers only world rendering when the GPU misses target FPS</p></div><label class="switch"><input id="adaptiveEnabled" type="checkbox"><span></span></label></div>
               <div class="dual-fields"><label>Target FPS<select id="adaptiveTarget"><option>60</option><option>75</option><option>90</option><option selected>120</option><option>144</option><option>165</option><option>240</option></select></label><label>Minimum render scale<select id="renderScale"><option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option selected>100%</option></select></label></div>
             </article>
+            <article class="setting-card fov-card" data-search="field of view fov zoom wide narrow cl_fovscale view angle">
+              <div class="setting-title"><div><span class="step">05</span><h3>Field of view</h3><p>Any value you like: type it, drag the slider, or tap a common one</p></div><span class="value-pill" id="fovPill">Keep current</span></div>
+              <div class="fov-fields"><label>Degrees<input id="viewFov" type="text" inputmode="decimal" maxlength="6" placeholder="Keep current" autocomplete="off" spellcheck="false"></label><input id="fovSlider" type="range" min="50" max="150" step="1" value="104" aria-label="Field of view slider"></div>
+              <div class="choice-row fov-choices"><button data-fov="">Keep current</button><button data-fov="90">90</button><button data-fov="100">100</button><button data-fov="104">104</button><button data-fov="106">106</button><button data-fov="110">110</button><button data-fov="120">120</button></div>
+              <small class="fov-note" id="fovNote" aria-live="polite">Leave empty to keep the FOV you set in Apex.</small>
+            </article>
           </div>
           <aside class="detail-panel aspect-panel">
             <div class="preview-kicker"><span class="eyebrow">Aspect geometry preview</span><b>LIVE</b></div>
@@ -170,7 +177,7 @@
       </section>
 
       <section class="page" data-page-panel="advanced" data-game="apex">
-        <div class="page-heading compact"><div><p class="eyebrow">Engine-level controls</p><h1>Advanced</h1><p>Fine-tune memory, shadows, distance, particles, physics, and field of view.</p></div><div class="preset-actions"><button data-load="fps">Most FPS</button><button data-load="balanced">Balanced</button><button data-load="quality">Best picture</button></div></div>
+        <div class="page-heading compact"><div><p class="eyebrow">Engine-level controls</p><h1>Advanced</h1><p>Fine-tune memory, shadows, distance, particles, and physics. Field of view is on the Display page.</p></div><div class="preset-actions"><button data-load="fps">Most FPS</button><button data-load="balanced">Balanced</button><button data-load="quality">Best picture</button></div></div>
         <article class="engine-preview advanced-preview" id="advancedPreview">
           <div class="engine-preview-media"><img id="advancedPreviewImage" src="../assets/previews/csm_cascade_res_512.webp" alt="Real Apex Legends advanced setting preview"><span id="advancedPreviewValue">512</span></div>
           <div class="engine-preview-copy"><div><p class="eyebrow">Real in-game setting preview</p><h2 id="advancedPreviewTitle">Sun-shadow resolution</h2><p id="advancedPreviewDescription">The preview follows the advanced control you focus or change.</p></div><div class="preview-meta"><span>Source</span><strong>Captured in Apex</strong><small id="advancedPreviewFile">csm_cascade_res_512</small></div></div>
@@ -191,14 +198,13 @@
             <label class="control-row"><span><strong>Ambient-occlusion quality</strong><small>0 disables samples; 4 adds depth</small></span><select id="ssaoQuality"><option value="0" selected>0 · Off</option><option value="4">4 · High</option></select></label>
             <label class="control-row"><span><strong>Downsample ambient occlusion</strong><small>Faster when AO is enabled</small></span><label class="switch"><input id="ssaoDownsample" type="checkbox" checked><span></span></label></label>
           </article>
-          <article class="settings-group wide"><div class="group-heading"><span>Distance, detail, physics, and view</span><small>07 controls</small></div>
+          <article class="settings-group wide"><div class="group-heading"><span>Distance, detail, and physics</span><small>06 controls</small></div>
             <div class="control-grid">
               <label><span>Geometry LOD scale</span><select id="lodScale"><option>Auto</option><option>0.25</option><option>0.35</option><option>0.50</option><option selected>0.60</option><option>0.70</option><option>0.80</option><option>1.00</option><option>1.50</option><option>2.00</option></select></label>
               <label><span>Object fade distance</span><select id="fadeScale"><option>Auto</option><option>0.25</option><option>0.35</option><option>0.50</option><option selected>0.60</option><option>0.70</option><option>0.80</option><option>1.00</option></select></label>
               <label><span>Map detail level</span><select id="mapDetailLevel"><option value="1" selected>1 · Standard</option><option value="2">2 · Dense</option></select></label>
               <label><span>Decal limit</span><select id="decalLimit"><option value="64" selected>64</option><option value="128">128</option><option value="256">256</option></select></label>
               <label><span>Particle fallback</span><select id="particleFallback"><option>Auto</option><option>Default</option><option selected>Balanced</option><option>Aggressive</option></select></label>
-              <label><span>Field of view</span><select id="viewFov"><option selected>Keep current</option><option>70</option><option>80</option><option>90</option><option>100</option><option>104</option><option>106</option><option>110</option><option>120</option></select></label>
               <label class="inline-toggle"><span><strong>Ragdoll collision</strong><small>Extra body physics</small></span><label class="switch"><input id="ragdollCollision" type="checkbox"><span></span></label></label>
             </div>
           </article>
@@ -291,6 +297,17 @@
         <div class="games-grid" id="gamesGrid"><div class="pc-loading">Open this page to find your games.</div></div>
       </section>
 
+      <section class="page" data-page-panel="settings">
+        <div class="page-heading compact"><div><p class="eyebrow">Every setting, in plain words</p><h1>All settings</h1><p>Every setting for this game in one list: what it does, how much FPS it costs, what it is set to now, and what competitive players pick. Press Show to jump to it, or Explain for pictures and details.</p></div></div>
+        <div class="all-settings-tools">
+          <label class="all-filter"><span>Find</span><input id="settingsFilter" type="search" placeholder="Type anything: fps, crosshair, blurry, shadows…" autocomplete="off"></label>
+          <label class="all-sort"><span>Sort</span><select id="settingsSort"><option value="page">By page</option><option value="fps">Biggest FPS cost first</option><option value="az">A to Z</option></select></label>
+          <div class="all-chips" role="group" aria-label="Show"><button data-all-show="all" class="active">All</button><button data-all-show="fps">Costs FPS</button><button data-all-show="changed">Changed, not applied</button><button data-all-show="offpick">Not the pro pick</button></div>
+        </div>
+        <p class="all-count" id="settingsCount" aria-live="polite"></p>
+        <div class="all-settings-list" id="allSettingsList"></div>
+      </section>
+
       <section class="page" data-page-panel="pccheck">
         <div class="page-heading compact"><div><p class="eyebrow">Windows and hardware</p><h1>PC Check</h1><p>Riftline looks at the Windows settings that most often cost Apex players FPS or add input lag. It only reads them; each fix opens the right Windows Settings page so you stay in control.</p></div><div class="pc-check-actions"><span class="pc-summary" id="pcCheckSummary" data-state="">Not checked yet</span><button class="button button-primary" data-pc-check>Run check again</button></div></div>
         <div class="pc-check-list" id="pcCheckList"><div class="pc-loading">Open this page to check your PC.</div></div>
@@ -321,6 +338,7 @@
   <script src="guide.js"></script>
   <script src="overwatch.js"></script>
   <script src="games.js"></script>
+  <script src="find.js"></script>
   <script src="tabs.js"></script>
 </body>
 </html>

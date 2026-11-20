@@ -48,7 +48,7 @@ const GUIDE = {
   mapDetailLevel: { title: 'Map detail level', what: 'Level 2 keeps extra small rocks and set dressing; level 1 removes them.', fps: 1, look: 1, comp: '1.', rec: '1', art: 'decor', labels: ['1', '2'], order: ['1', '2'] },
   decalLimit: { title: 'Decal limit', what: 'How many bullet holes and marks can stay on screen at once.', fps: 1, look: 1, comp: '64.', rec: '64', art: 'decals', labels: ['64', '256'], order: ['64', '128', '256'] },
   particleFallback: { title: 'Particle fallback', what: 'How aggressively Apex simplifies effects when many are on screen. Aggressive keeps FPS steadier in chaotic fights.', fps: 1, look: 1, comp: 'Balanced or Aggressive.', rec: 'Balanced', art: 'particles', labels: ['Aggressive', 'Default'], order: ['Aggressive', 'Balanced', 'Default'] },
-  viewFov: { title: 'Field of view', what: 'How wide your view is. Wider shows more around you but makes things in the centre look smaller and draws more of the scene.', fps: 1, look: 3, comp: '104–110 is the common competitive range.', rec: '104', art: 'fov', labels: ['70', '120'], order: ['70', '80', '90', '100', '104', '106', '110', '120'] },
+  viewFov: { title: 'Field of view', what: 'How wide your view is, in degrees. Wider shows more around you but makes things in the centre look smaller and draws more of the scene. Apex\'s own menu goes from 70 to 110; Riftline lets you type any value, and Apex may cap one it does not support.', fps: 1, look: 3, comp: '104–110 is the common competitive range.', rec: '104', art: 'fov', labels: ['70', '120'], range: [70, 120] },
   ragdollCollision: { title: 'Ragdoll collision', what: 'Lets ragdoll bodies collide with each other. Pure cosmetic physics.', fps: 1, look: 0, comp: 'Off.', rec: false, art: 'ragdoll', labels: ['Off', 'On'] },
 
   fpsCap: { title: 'Gameplay FPS cap', what: 'Maximum frames per second during matches. A cap just under your stable FPS gives smoother, more even frame times; 0 means uncapped.', fps: 0, look: 0, comp: 'Your monitor refresh rate, or a few FPS under what your PC holds in fights.', art: 'fps', labels: ['Uncapped: uneven', 'Capped: steady'] },
@@ -425,6 +425,7 @@ function setExplain(on) {
 function costOf(key, guide) {
   const value = currentValue(key);
   if (typeof value === 'boolean') return guide.inverse ? (value ? 0 : 1) : (value ? 1 : 0);
+  if (guide.range) { const number = parseFloat(value); if (!Number.isFinite(number)) return null; return Math.max(0, Math.min(1, (number - guide.range[0]) / (guide.range[1] - guide.range[0]))); }
   if (!guide.order) return null;
   const index = guide.order.indexOf(String(value));
   if (index < 0) return null;
@@ -531,6 +532,7 @@ const ICONS = {
   pccheck: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>',
   safety: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
   overwatch: '<circle cx="12" cy="12" r="9"/><path d="M8 9l4 7 4-7M12 3v4"/>',
+  settings: '<path d="M4 6h16M4 12h16M4 18h10"/><circle cx="18" cy="18" r="2.5"/>',
   games: '<rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3M16 12h.01M18 14h.01"/>'
 };
 function addNavIcons() {
@@ -593,6 +595,6 @@ function init() {
   }
 }
 
-window.riftlineGuide = { GUIDE, openGuide, refreshLoad, makeSetupCode, loadSetupCode, runPcCheck, decorateCards };
+window.riftlineGuide = { GUIDE, LEVEL, dots, openGuide, refreshLoad, makeSetupCode, loadSetupCode, runPcCheck, decorateCards };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

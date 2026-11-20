@@ -11,7 +11,7 @@ const hasNativeBridge = Boolean(window.chrome?.webview);
    The baseline is a snapshot of every control as it reflects the files Apex is
    using right now. Pending changes are computed by comparing against it, so
    changing a value back removes it from Review automatically. */
-const SKIP_TRACK = new Set(['settingsSearch','launchCommandSearch','commandImport','setupCodeBox','ratioW','ratioH','ratioHeight','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
+const SKIP_TRACK = new Set(['fovSlider','settingsFilter','settingsSort','settingsSearch','launchCommandSearch','commandImport','setupCodeBox','ratioW','ratioH','ratioHeight','customProfileName','customProfiles','resolutionCatalog','reticleColor','configLock','reticleRed','reticleGreen','reticleBlue']);
 const SEGMENTS = ['aspect','window','aa'];
 const LABEL_OVERRIDES = {
   width: 'Output width', height: 'Output height', 'segment:aspect': 'Screen shape', 'segment:window': 'Window mode', 'segment:aa': 'Anti-aliasing',
@@ -23,7 +23,7 @@ const LABEL_OVERRIDES = {
   showPos: 'Position and speed readout', minimizeAltTab: 'Minimize on Alt+Tab',
   fadeScale: 'Object fade distance', mapDetailLevel: 'Map detail level', decalLimit: 'Decal limit', particleFallback: 'Particle fallback', viewFov: 'Field of view'
 };
-const PAGE_NAMES = { overview: 'Overview', display: 'Display', visuals: 'Visuals', advanced: 'Advanced', launch: 'Launch', safety: 'Safety' };
+const PAGE_NAMES = { overview: 'Overview', display: 'Display', visuals: 'Visuals', advanced: 'Advanced', launch: 'Launch', safety: 'Safety', overwatch: 'Overwatch 2', unreal: 'Game settings', settings: 'All settings', pccheck: 'PC Check', games: 'Games' };
 let baseline = new Map();
 let reviewScheduled = false;
 let busy = false;
@@ -257,7 +257,8 @@ function elementForKey(key) {
 
 function titleOf(element) {
   const node = ['h3', 'h2', 'strong', 'span'].map(selector => element?.querySelector(selector)).find(Boolean);
-  return node?.textContent.trim() || '';
+  // Leave out the "?" of the guide button that sits inside the heading.
+  return [...(node?.childNodes || [])].filter(child => !child.dataset?.guide).map(child => child.textContent).join('').trim();
 }
 
 function labelFor(key) {
@@ -271,6 +272,7 @@ function displayValue(key, value) {
   if (typeof value === 'boolean') return value ? 'On' : 'Off';
   if (key.startsWith('segment:')) return $(`[data-segment="${key.slice(8)}"] [data-value="${CSS.escape(String(value))}"]`)?.textContent.trim() || String(value || '—');
   const element = document.getElementById(key);
+  if (key === 'viewFov') return String(value).trim() === '' ? 'Keep current' : `${String(value).trim()}°`;
   if (element?.tagName === 'SELECT') return [...element.options].find(option => option.value === String(value))?.textContent.trim() || String(value);
   return String(value).trim() === '' ? '—' : String(value);
 }
@@ -753,7 +755,7 @@ function collectSettings() {
     maxDynamicShadows: Number(getValue('dynamicShadows')), csmResolution: Number(getValue('csmResolution')),
     shadowCoverage: Number(getValue('shadowCoverage')), ssaoQuality: Number(getValue('ssaoQuality')), ssaoDownsample: getBool('ssaoDownsample'),
     lodScale: getValue('lodScale'), fadeDistanceScale: getValue('fadeScale'), mapDetailLevel: Number(getValue('mapDetailLevel')), decalLimit: Number(getValue('decalLimit')),
-    particleFallback: getValue('particleFallback'), viewFov: getValue('viewFov'),
+    particleFallback: getValue('particleFallback'), viewFov: getValue('viewFov').trim().replace(/°$/, '') || 'Keep current',
     customReticle: getBool('customReticle'), reticleRed: clampRgb(getValue('reticleRed')),
     reticleGreen: clampRgb(getValue('reticleGreen')), reticleBlue: clampRgb(getValue('reticleBlue')),
     launchOptions: buildCommand()
@@ -874,19 +876,27 @@ let searchActive = 0;
 function buildSearchIndex() {
   searchIndex = $$('.workspace .setting-card, .workspace .control-row, .workspace .control-grid > label, .workspace .safety-action, .workspace .path-card, .workspace .reticle-designer, .workspace .profile-manager').map(element => {
     const title = titleOf(element);
-    const keywords = [title, element.dataset.search, element.dataset.commandSearch, element.querySelector('p, small')?.textContent, element.querySelector('code')?.textContent]
+    const guideKey = element.querySelector('[data-guide]')?.dataset.guide;
+    const guide = guideKey ? window.riftlineGuide?.GUIDE?.[guideKey] : null;
+    const extra = window.riftlineFind?.wordsFor(guideKey, element) || '';
+    const keywords = [title, element.dataset.search, element.dataset.commandSearch, element.querySelector('p, small')?.textContent, element.querySelector('code')?.textContent, guide?.title, guide?.what, extra]
       .filter(Boolean).join(' ').toLowerCase();
-    return { element, title, keywords, page: element.closest('.page')?.dataset.pagePanel || '' };
+    const page = element.closest('.page');
+    return { element, title, keywords, summary: guide?.what || '', page: page?.dataset.pagePanel || '', game: page?.dataset.game || '' };
   }).filter(item => item.title);
 }
 
 function searchSettings(query) {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) return [];
+  const family = document.body.dataset.family || 'apex';
+  const match = (item, term) => item.keywords.includes(term) || (window.riftlineFind?.fuzzy(term, item.keywords) ?? false);
   return searchIndex.map(item => {
     const title = item.title.toLowerCase();
-    if (!terms.every(term => item.keywords.includes(term))) return null;
-    const score = (title.startsWith(terms[0]) ? 0 : title.includes(terms[0]) ? 1 : 2) + (item.element.matches('.control-row, .control-grid > label') ? .1 : 0);
+    if (!terms.every(term => match(item, term))) return null;
+    // Settings for the game you have selected come first; exact words beat typo matches.
+    const score = (title.startsWith(terms[0]) ? 0 : title.includes(terms[0]) ? 1 : 2) + (item.element.matches('.control-row, .control-grid > label') ? .1 : 0)
+      + (item.game && item.game !== family ? 5 : 0) + (terms.every(term => item.keywords.includes(term)) ? 0 : 3);
     return { ...item, score };
   }).filter(Boolean).sort((a, b) => a.score - b.score).slice(0, 8);
 }
@@ -897,8 +907,8 @@ function renderSearchResults(results, query) {
   if (!query) { box.hidden = true; input.setAttribute('aria-expanded', 'false'); return; }
   searchActive = Math.min(searchActive, Math.max(0, results.length - 1));
   box.innerHTML = results.length
-    ? results.map((result, index) => `<button role="option" class="${index === searchActive ? 'active' : ''}" aria-selected="${index === searchActive}" data-search-index="${index}"><strong>${escapeHtml(result.title)}</strong><span>${escapeHtml(PAGE_NAMES[result.page] || '')}</span></button>`).join('')
-    : `<div class="search-empty">No setting matches “${escapeHtml(query)}”</div>`;
+    ? results.map((result, index) => `<button role="option" class="${index === searchActive ? 'active' : ''}" aria-selected="${index === searchActive}" data-search-index="${index}"><strong>${escapeHtml(result.title)}</strong><span>${escapeHtml(PAGE_NAMES[result.page] || '')}</span>${result.summary ? `<small>${escapeHtml(result.summary.split(/(?<=\.)\s/)[0])}</small>` : ''}</button>`).join('')
+    : `<div class="search-empty">No setting matches “${escapeHtml(query)}”. <button data-page="settings" data-all-query="${escapeHtml(query)}">Browse all settings</button></div>`;
   box.hidden = false;
   input.setAttribute('aria-expanded', 'true');
   box._results = results;
@@ -1118,7 +1128,7 @@ function bindEvents() {
   });
 
   const search = $('#settingsSearch');
-  search.addEventListener('input', () => { searchActive = 0; renderSearchResults(searchSettings(search.value.trim()), search.value.trim()); });
+  search.addEventListener('input', () => { searchActive = 0; if (!searchIndex.some(item => item.summary)) buildSearchIndex(); renderSearchResults(searchSettings(search.value.trim()), search.value.trim()); });
   search.addEventListener('keydown', event => {
     const results = $('#searchResults')._results || [];
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -1130,7 +1140,7 @@ function bindEvents() {
     else if (event.key === 'Escape') { search.value = ''; renderSearchResults([], ''); search.blur(); }
   });
   search.addEventListener('blur', () => setTimeout(() => { $('#searchResults').hidden = true; search.setAttribute('aria-expanded', 'false'); }, 150));
-  search.addEventListener('focus', () => { if (search.value.trim()) renderSearchResults(searchSettings(search.value.trim()), search.value.trim()); });
+  search.addEventListener('focus', () => { buildSearchIndex(); if (search.value.trim()) renderSearchResults(searchSettings(search.value.trim()), search.value.trim()); });
   $('#searchResults').addEventListener('mousedown', event => {
     const option = event.target.closest('[data-search-index]');
     if (option) { event.preventDefault(); chooseSearchResult(Number(option.dataset.searchIndex)); }

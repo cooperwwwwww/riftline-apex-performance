@@ -652,9 +652,11 @@ function ConvertTo-ApexScaleValue {
 
 function ConvertTo-ApexFovScale {
     param([Parameter(Mandatory)][string]$Fov)
-    $degrees = 0
-    if (-not [int]::TryParse($Fov.Trim(), [ref]$degrees) -or ($degrees -lt 70) -or ($degrees -gt 120)) {
-        throw 'Field of view must be a whole number from 70 through 120.'
+    $degrees = 0.0
+    $text = $Fov.Trim().TrimEnd([char]0x00B0).Trim()
+    # Any FOV is allowed, with up to two decimals. Apex itself may cap values outside the range it supports.
+    if (($text -notmatch '^\d{1,3}(\.\d{1,2})?$') -or -not [double]::TryParse($text, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$degrees) -or ($degrees -lt 1) -or ($degrees -gt 179)) {
+        throw 'Field of view must be a number from 1 through 179 (for example 104 or 104.5).'
     }
     # Same linear mapping as Apex's own FOV slider: 70 = 1.0, 90 = 1.275, 110 = 1.55.
     $scale = 1.0 + (($degrees - 70) * 0.01375)
@@ -669,8 +671,9 @@ function ConvertFrom-ApexFovScale {
     $legacy = @{ '1.142857' = 80; '1.285714' = 90; '1.428571' = 100; '1.714286' = 120 }
     $key = $value.ToString('0.000000', [System.Globalization.CultureInfo]::InvariantCulture)
     if ($legacy.ContainsKey($key)) { return [string]$legacy[$key] }
-    $degrees = [int][Math]::Round(70 + (($value - 1.0) / 0.01375))
-    return [string][Math]::Max(70, [Math]::Min(120, $degrees))
+    $degrees = [Math]::Round(70 + (($value - 1.0) / 0.01375), 2)
+    $degrees = [Math]::Max([double]1, [Math]::Min([double]179, [double]$degrees))
+    return $degrees.ToString('0.##', [System.Globalization.CultureInfo]::InvariantCulture)
 }
 
 function Apply-AdvancedSettings {
@@ -721,6 +724,7 @@ function Apply-AdvancedSettings {
     }
     $TextureBudget = ConvertTo-TextureBudgetTier -Value $TextureBudget
     $fovScale = $null
+    if ([string]::IsNullOrWhiteSpace($ViewFov)) { $ViewFov = 'Keep current' }
     if ($ViewFov -ne 'Keep current') { $fovScale = ConvertTo-ApexFovScale -Fov $ViewFov }
     Assert-ApexClosed
     $path = Get-VideoConfigPath
@@ -1233,8 +1237,16 @@ function Invoke-Build23SelfTest {
     if ((ConvertTo-ApexFovScale -Fov '104') -ne '1.467500') { throw 'Self-test failed: 104 FOV scale.' }
     if ((ConvertFrom-ApexFovScale -Scale '1.285714') -ne '90') { throw 'Self-test failed: legacy 90 FOV read-back.' }
     if ((ConvertFrom-ApexFovScale -Scale '1.55') -ne '110') { throw 'Self-test failed: Apex 110 FOV read-back.' }
-    $fovRejected = $false; try { [void](ConvertTo-ApexFovScale -Fov '150') } catch { $fovRejected = $true }
-    if (-not $fovRejected) { throw 'Self-test failed: out-of-range FOV was accepted.' }
+    # Any FOV from 1 through 179 is written; decimals round-trip.
+    if ((ConvertTo-ApexFovScale -Fov '150') -ne '2.100000') { throw 'Self-test failed: 150 FOV scale.' }
+    if ((ConvertTo-ApexFovScale -Fov '104.5') -ne '1.474375') { throw 'Self-test failed: 104.5 FOV scale.' }
+    if ((ConvertTo-ApexFovScale -Fov '55') -ne '0.793750') { throw 'Self-test failed: 55 FOV scale.' }
+    if ((ConvertFrom-ApexFovScale -Scale '1.474375') -ne '104.5') { throw 'Self-test failed: 104.5 FOV read-back.' }
+    if ((ConvertFrom-ApexFovScale -Scale '2.1') -ne '150') { throw 'Self-test failed: 150 FOV read-back.' }
+    foreach ($badFov in '0', '180', 'abc', '-5', '1e2', '104.567') {
+        $fovRejected = $false; try { [void](ConvertTo-ApexFovScale -Fov $badFov) } catch { $fovRejected = $true }
+        if (-not $fovRejected) { throw "Self-test failed: invalid FOV '$badFov' was accepted." }
+    }
     if ((ConvertTo-TextureBudgetTier -Value '3 GB') -ne 'Medium' -or (ConvertTo-TextureBudgetTier -Value 'insane') -ne 'Insane') { throw 'Self-test failed: texture budget tier mapping.' }
 
     # The full apply path through the shared dispatcher, then read the live files back.
@@ -1557,7 +1569,7 @@ function Get-RiftlineState {
         installedVoiceLanguages = @(Get-InstalledApexVoiceLanguages)
         current = (Get-RiftlineCurrentSettings)
         apexRunning = (Test-ApexRunning)
-        version = 35
+        version = 36
     }
 }
 
@@ -1833,6 +1845,7 @@ function Show-WebLauncher {
                     '/extras.css' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'extras.css'))) -ContentType 'text/css; charset=utf-8' }
                     '/app.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'app.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/guide.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'guide.js'))) -ContentType 'application/javascript; charset=utf-8' }
+                    '/find.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'find.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/tabs.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'tabs.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/games.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'games.js'))) -ContentType 'application/javascript; charset=utf-8' }
                     '/overwatch.js' { Send-WebBytes -Response $response -Bytes ([System.IO.File]::ReadAllBytes((Join-Path $webRoot 'overwatch.js'))) -ContentType 'application/javascript; charset=utf-8' }

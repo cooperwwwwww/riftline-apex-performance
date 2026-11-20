@@ -26,7 +26,7 @@ const LAYOUTS = {
   overwatch: page => groupsIn(page, '.ow-groups > .ow-group', 'header span'),
   unreal: page => groupsIn(page, '#ueGroups > .ow-group', 'header span')
 };
-const SHORT = { 'Display and frame rate': 'Display & FPS', 'Graphics quality': 'Graphics', 'Clarity and latency': 'Clarity', 'Distance, detail, physics, and view': 'Distance & view', 'Textures and memory': 'Textures & memory', 'Shadows and AO': 'Shadows & AO' };
+const SHORT = { 'Display and frame rate': 'Display & FPS', 'Graphics quality': 'Graphics', 'Clarity and latency': 'Clarity', 'Distance, detail, and physics': 'Distance & detail', 'Textures and memory': 'Textures & memory', 'Shadows and AO': 'Shadows & AO' };
 
 const built = {};   // page name -> tabs
 
